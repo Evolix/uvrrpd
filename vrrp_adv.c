@@ -111,6 +111,7 @@ static int vrrp_adv_ip4_build(struct iovec *iov, const struct vrrp_net *vnet)
 	iph->saddr = vnet->vif.ipx.addr.s_addr;
 	iph->daddr = htonl(INADDR_VRRP_GROUP);
 
+	iph->check = 0;
 	iph->check = cksum((unsigned short *) iph, IPHDR_SIZE);
 
 	iov->iov_len = IPHDR_SIZE;
