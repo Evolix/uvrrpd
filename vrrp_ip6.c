@@ -133,7 +133,7 @@ static int vrrp_ip6_mgroup(struct vrrp_net *vnet)
  * Return 0 if the list is the same,
  * the number of differente VIP else
  */
-static int vrrp_ip6_cmp(struct vrrp_net *vnet, struct vrrphdr *vrrpkt)
+static int vrrp_ip6_viplist_cmp(struct vrrp_net *vnet, struct vrrphdr *vrrpkt)
 {
 	uint32_t *vip_addr =
 	    (uint32_t *) ((unsigned char *) vrrpkt + VRRP_PKTHDR_SIZE);
@@ -312,13 +312,40 @@ uint16_t vrrp_ip6_chksum(const struct vrrp_net *vnet, struct vrrphdr *pkt,
 	return cksum(buf, psh_size);
 }
 
+/**
+ * vrrp_ip6_ntop() - network to string representation
+ */
+static const char *vrrp_ip6_ntop(union vrrp_ipx_addr *ipx, char *dst)
+{
+	return inet_ntop(AF_INET6, &ipx->addr6, dst, INET6_ADDRSTRLEN);
+}
+
+/**
+ * vrrp_ip6_pton() - string representation to network
+ */
+static int vrrp_ip6_pton(union vrrp_ipx_addr *dst, const char *src)
+{
+	return inet_pton(AF_INET6, src, &dst->addr6);
+}
+
+/**
+ * vrrp_ip6_cmp() - compare two vipx
+ */
+int vrrp_ip6_cmp(union vrrp_ipx_addr *s1, union vrrp_ipx_addr *s2)
+{
+	return memcmp(&s1->addr6, &s2->addr6, sizeof(struct in6_addr));
+}
+
 /* exported VRRP_IP6 helper */
 struct vrrp_ipx VRRP_IP6 = {
 	.family = AF_INET6,
 	.setsockopt = vrrp_ip6_setsockopt,
 	.mgroup = vrrp_ip6_mgroup,
-	.cmp = vrrp_ip6_cmp,
 	.recv = vrrp_ip6_recv,
+	.cmp = vrrp_ip6_cmp,
 	.chksum = vrrp_ip6_chksum,
 	.getsize = vrrp_ip6_getsize,
+	.viplist_cmp = vrrp_ip6_viplist_cmp,
+	.ipx_pton = vrrp_ip6_pton,
+	.ipx_ntop = vrrp_ip6_ntop
 };

@@ -106,7 +106,7 @@ static int vrrp_ip4_mgroup(struct vrrp_net *vnet)
  * Return 0 if the list is the same,
  * the number of different VIP else
  */
-static int vrrp_ip4_cmp(struct vrrp_net *vnet, struct vrrphdr *vrrpkt)
+static int vrrp_ip4_viplist_cmp(struct vrrp_net *vnet, struct vrrphdr *vrrpkt)
 {
 	/* compare IP address(es) */
 	uint32_t *vip_addr =
@@ -222,6 +222,30 @@ static uint16_t vrrp_ip4_chksum(const struct vrrp_net *vnet,
 	return 0;
 }
 
+/**
+ * vrrp_ip4_ntop() - network to string representation
+ */
+static const char *vrrp_ip4_ntop(union vrrp_ipx_addr *ipx, char *dst)
+{
+	return inet_ntop(AF_INET, &ipx->addr, dst, INET_ADDRSTRLEN);
+}
+
+/**
+ * vrrp_ip4_pton() - string representation to network
+ */
+static int vrrp_ip4_pton(union vrrp_ipx_addr *dst, const char *src)
+{
+	return inet_pton(AF_INET, src, &dst->addr);
+}
+
+
+/**
+ * vrrp_ip4_cmp() - compare two vipx
+ */
+int vrrp_ip4_cmp(union vrrp_ipx_addr *s1, union vrrp_ipx_addr *s2)
+{
+	return ntohl(s1->addr.s_addr) - ntohl(s2->addr.s_addr);
+}
 
 /**
  * vrrp_ip4_setsockopt() - no need to setsockopt() in IPv4
@@ -238,8 +262,11 @@ struct vrrp_ipx VRRP_IP4 = {
 	.family = AF_INET,
 	.setsockopt = vrrp_ip4_setsockopt,
 	.mgroup = vrrp_ip4_mgroup,
-	.cmp = vrrp_ip4_cmp,
 	.recv = vrrp_ip4_recv,
+	.cmp = vrrp_ip4_cmp,
 	.chksum = vrrp_ip4_chksum,
+	.viplist_cmp = vrrp_ip4_viplist_cmp,
 	.getsize = vrrp_ip4_getsize,
+	.ipx_pton = vrrp_ip4_pton,
+	.ipx_ntop = vrrp_ip4_ntop,
 };

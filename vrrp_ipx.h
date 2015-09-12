@@ -59,18 +59,24 @@ struct vrrp_ipx {
 	int family;
 	int (*setsockopt) (int, int);
 	int (*mgroup) (struct vrrp_net *);
-	int (*cmp) (struct vrrp_net *, struct vrrphdr *);
+	int (*cmp) (union vrrp_ipx_addr *, union vrrp_ipx_addr *);
 	int (*recv) (int, struct vrrp_recv *, unsigned char *, ssize_t, int *);
+	int (*getsize) (const struct vrrp_net *);
+	int (*viplist_cmp) (struct vrrp_net *, struct vrrphdr *);
 	 uint16_t(*chksum) (const struct vrrp_net *, struct vrrphdr *,
 			    union vrrp_ipx_addr *, union vrrp_ipx_addr *);
-	int (*getsize) (const struct vrrp_net *);
+	const char *(*ipx_ntop) (union vrrp_ipx_addr *, char *);
+	int (*ipx_pton) (union vrrp_ipx_addr *, const char *);
 };
 #define set_sockopt  ipx_helper->setsockopt
 #define join_mgroup  ipx_helper->mgroup
-#define vip_compare  ipx_helper->cmp
+#define vip_compare  ipx_helper->viplist_cmp
+#define ipx_cmp      ipx_helper->cmp
 #define pkt_receive  ipx_helper->recv
 #define adv_checksum ipx_helper->chksum
 #define adv_getsize  ipx_helper->getsize
+#define ipx_to_str   ipx_helper->ipx_ntop
+#define str_to_ipx   ipx_helper->ipx_pton
 
 extern struct vrrp_ipx VRRP_IP4;	/* IPv4 module */
 extern struct vrrp_ipx VRRP_IP6;	/* IPv6 module */
