@@ -39,6 +39,7 @@
  * 1 IPv6 = 45 bytes in a string format
  */
 #define SCRIPT_ARG_MAX INET6_ADDRSTRLEN * NI_MAXHOST
+#define ADDRSTRLEN INET6_ADDRSTRLEN 
 #define SCRIPT_NARGS 10
 
 /**
@@ -81,7 +82,6 @@ static int vrrp_build_args(const char *scriptname, char **argv,
 
 	/* serialize vipaddrs
 	 * ip0,ip1,...,ipn */
-	//argv[7] = '\0';
 	int argv_ips = SCRIPT_NARGS - 2;
 	memset(argv[argv_ips], 0, strlen(argv[argv_ips]));
 	int plen = 0;
@@ -91,19 +91,10 @@ static int vrrp_build_args(const char *scriptname, char **argv,
 		if (plen != 0)
 			argv[argv_ips][plen] = ',';
 
-		if (vnet->family == AF_INET)
-			snprintf(argv[argv_ips] + strlen(argv[argv_ips]),
-				 SCRIPT_ARG_MAX - plen + 1, "%s",
-				 inet_ntoa(vip_ptr->ip_addr));
-
-		if (vnet->family == AF_INET6) {
-			char straddr[INET6_ADDRSTRLEN];
-			snprintf(argv[argv_ips] + strlen(argv[argv_ips]),
-				 SCRIPT_ARG_MAX - plen + 1, "%s",
-				 inet_ntop(AF_INET6, &vip_ptr->ip_addr6,
-					   straddr, INET6_ADDRSTRLEN));
-		}
-
+		char straddr[ADDRSTRLEN];
+		snprintf(argv[argv_ips] + strlen(argv[argv_ips]),
+			 SCRIPT_ARG_MAX - plen + 1, "%s",
+			 vnet->ipx_to_str(&vip_ptr->ipx, straddr));
 	}
 
 	/* the last elmt must be NULL */
