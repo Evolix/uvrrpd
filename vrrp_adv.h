@@ -50,19 +50,21 @@ static inline int vrrp_adv_get_priority(const struct vrrp_net *vnet)
 }
 
 /**
- * vrrp_adv_get_ntoa_addr() - return a string ip4 address
+ * vrrp_adv_addr_to_str() - return source ip from received adv pkt
+ * 		            in string format
  */
-static inline char *vrrp_adv_get_ntoa_addr(const struct vrrp_net *vnet)
+static inline const char *vrrp_adv_addr_to_str(struct vrrp_net *vnet, char *dst)
 {
-	return inet_ntoa(vnet->__pkt.ip_saddr);
+	return vnet->ipx_to_str(&vnet->__pkt.s_ipx, dst);
 }
 
 /**
- * vrrp_adv_get_ntohl_addr()
+ * vrrp_adv_get_compare() - compare received adv pkt addr to local 
+ * 			    primary address
  */
-static inline uint32_t vrrp_adv_get_ntohl_addr(const struct vrrp_net *vnet)
+static inline uint32_t vrrp_adv_addr_cmp(struct vrrp_net *vnet)
 {
-	return ntohl(vnet->__pkt.ip_saddr.s_addr);
+	return vnet->ipx_cmp(&vnet->__pkt.s_ipx, &vnet->vif.ipx);
 }
 
 /**
