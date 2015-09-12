@@ -69,6 +69,7 @@ int vrrp_state_init(struct vrrp *vrrp, struct vrrp_net *vnet)
 int vrrp_state_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
 {
 	int event = vrrp_net_listen(vnet, vrrp);
+	char straddr[INET6_ADDRSTRLEN];
 
 	switch (event) {
 	case TIMER:
@@ -152,7 +153,7 @@ int vrrp_state_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
 	case INVALID:
 		log_warning("vrid %d :: %s %s, %s", vrrp->vrid,
 			    "receive an invalid advertisement packet from",
-			    vrrp_adv_get_ntoa_addr(vnet), "ignore it");
+			    vrrp_adv_addr_to_str(vnet, straddr), "ignore it");
 
 		break;
 
@@ -206,22 +207,38 @@ int vrrp_state_master(struct vrrp *vrrp, struct vrrp_net *vnet)
 		}
 
 		/* Priority of received pkt is greater than our,
-		 * or Priority of received pkt is equal, but 
-		 * primary IP address of the sender is greater than 
-		 * the local primary IP address
-		 * => switch to backup
-		 * TODO : /!\ don't work in IPv6 /!\
+		 * switch to backup
 		 */
-		if ((vrrp_adv_get_priority(vnet) > vrrp->priority) ||
-		    ((vrrp_adv_get_priority(vnet) == vrrp->priority) &&
-		     (vrrp_adv_get_ntohl_addr(vnet) >
-		      ntohl(vnet->vif.ip_addr.s_addr)))) {
+		if (vrrp_adv_get_priority(vnet) > vrrp->priority) {
 
 			log_notice("vrid %d :: %s", vrrp->vrid,
 				   "receive packet with higher priority");
 
 			vrrp_state_goto_backup(vrrp, vnet);
 			break;
+		}
+
+		/* Priority of received pkt is equal, but 
+		 * primary IP address of the sender is greater than 
+		 * the local primary IP address,
+		 * switch to backup
+		 */
+		if (vrrp_adv_get_priority(vnet) == vrrp->priority) {
+			if (vrrp_adv_addr_cmp(vnet) > 0) {
+				log_notice("vrid %d :: %s", vrrp->vrid,
+					   "Same priority !");
+				log_notice("vrid %d :: %s", vrrp->vrid,
+				           "Primary IP address of the sender greater than the local primary address");
+
+				vrrp_state_goto_backup(vrrp, vnet);
+				break;
+			}
+
+			log_notice("vrid %d :: %s", vrrp->vrid,
+				   "Same priority !");
+			log_notice("vrid %d :: %s", vrrp->vrid,
+				   "Local primary address is greater than the primary IP address of the sender");
+
 		}
 
 		/* We have the greatest priority */
@@ -306,7 +323,7 @@ static int vrrp_state_goto_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
 	if (vrrp->version == RFC5798) {
 		if (previous_state == INIT)
 			vrrp->master_adv_int = vrrp->adv_int;
-		if (previous_state == MASTER)
+		else if (previous_state == MASTER)
 			vrrp->master_adv_int = vrrp_adv_get_advint(vnet);
 	}
 

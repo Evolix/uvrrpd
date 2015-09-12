@@ -62,7 +62,7 @@ static inline const char *vrrp_adv_addr_to_str(struct vrrp_net *vnet, char *dst)
  * vrrp_adv_get_compare() - compare received adv pkt addr to local 
  * 			    primary address
  */
-static inline uint32_t vrrp_adv_addr_cmp(struct vrrp_net *vnet)
+static inline int vrrp_adv_addr_cmp(struct vrrp_net *vnet)
 {
 	return vnet->ipx_cmp(&vnet->__pkt.s_ipx, &vnet->vif.ipx);
 }
