@@ -64,6 +64,9 @@ int main(int argc, char *argv[])
 	if (! !vrrp_options(&vrrp, &vnet, argc, argv))
 		exit(EXIT_FAILURE);
 
+	/* logs */
+	log_open("uvrrpd", (char const *) loglevel);
+
 	/* open sockets */
 	if ((vrrp_net_socket(&vnet) != 0) || (vrrp_net_socket_xmit(&vnet) != 0))
 		exit(EXIT_FAILURE);
@@ -87,7 +90,6 @@ int main(int argc, char *argv[])
 	}
 
 	/* daemonize */
-	log_open("uvrrpd", (char const *) loglevel);
 	if (background) {
 		daemon(0, (log_trigger(NULL) > LOG_INFO));
 	}
