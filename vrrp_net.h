@@ -85,6 +85,13 @@ struct vrrp_recv {
 	struct vrrphdr adv;
 };
 
+#define ip_addr   ipx.addr
+#define ip_addr6  ipx.addr6
+#define ip_saddr  s_ipx.addr
+#define ip_daddr  d_ipx.addr
+#define ip_saddr6 s_ipx.addr6
+#define ip_daddr6 d_ipx.addr6
+
 /**
  * struct vrrp_net - VRRP net structure
  */
@@ -119,7 +126,15 @@ struct vrrp_net {
 	/* family helper functions */
 	struct vrrp_ipx *ipx_helper;
 };
-
+#define set_sockopt  ipx_helper->setsockopt
+#define join_mgroup  ipx_helper->mgroup
+#define vip_compare  ipx_helper->viplist_cmp
+#define ipx_cmp      ipx_helper->cmp
+#define pkt_receive  ipx_helper->recv
+#define adv_checksum ipx_helper->chksum
+#define adv_getsize  ipx_helper->getsize
+#define ipx_to_str   ipx_helper->ipx_ntop
+#define str_to_ipx   ipx_helper->ipx_pton
 
 /**
  * enum vrrp_ret - Return code used in vrrp_net_listen

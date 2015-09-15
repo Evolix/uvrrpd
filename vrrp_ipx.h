@@ -45,39 +45,46 @@ union vrrp_ipx_addr {
 	struct in_addr addr;
 	struct in6_addr addr6;
 };
-#define ip_addr   ipx.addr
-#define ip_addr6  ipx.addr6
-#define ip_saddr  s_ipx.addr
-#define ip_daddr  d_ipx.addr
-#define ip_saddr6 s_ipx.addr6
-#define ip_daddr6 d_ipx.addr6
 
 /**
  * struct vrrp_ipx - Helper functions 
  */
 struct vrrp_ipx {
+	/* AF_INET or AF6_INET */
 	int family;
+
+	/* setsockopt() - socket options */
 	int (*setsockopt) (int, int);
+
+	/* mgroup() - join IPvX VRRP multicast group */
 	int (*mgroup) (struct vrrp_net *);
+
+	/* cmp() - Compare two IPvX address */
 	int (*cmp) (union vrrp_ipx_addr *, union vrrp_ipx_addr *);
+
+	/* recv() - Read received pkt and fetch/store information
+	 *          in struct vrrp_recv */
 	int (*recv) (int, struct vrrp_recv *, unsigned char *, ssize_t, int *);
+
+	/* getsize() - get size of IPvX VRRP advertisement pkt */
 	int (*getsize) (const struct vrrp_net *);
+
+	/* viplist_cmp() - compare VRRP Virtual IPvX list */
 	int (*viplist_cmp) (struct vrrp_net *, struct vrrphdr *);
-	 uint16_t(*chksum) (const struct vrrp_net *, struct vrrphdr *,
+
+	/* chksum() - compute IPvX checksum while building
+	 * 	      advertisement packet */
+	uint16_t(*chksum) (const struct vrrp_net *, struct vrrphdr *,
 			    union vrrp_ipx_addr *, union vrrp_ipx_addr *);
+
+	/* ipx_ntop() - call ntop() on IPvX addr */
 	const char *(*ipx_ntop) (union vrrp_ipx_addr *, char *);
+
+	/* ipx_pton() - call pton() on IPvX addr */
 	int (*ipx_pton) (union vrrp_ipx_addr *, const char *);
 };
-#define set_sockopt  ipx_helper->setsockopt
-#define join_mgroup  ipx_helper->mgroup
-#define vip_compare  ipx_helper->viplist_cmp
-#define ipx_cmp      ipx_helper->cmp
-#define pkt_receive  ipx_helper->recv
-#define adv_checksum ipx_helper->chksum
-#define adv_getsize  ipx_helper->getsize
-#define ipx_to_str   ipx_helper->ipx_ntop
-#define str_to_ipx   ipx_helper->ipx_pton
 
+/* IP4 and IP6 internal modules */
 extern struct vrrp_ipx VRRP_IP4;	/* IPv4 module */
 extern struct vrrp_ipx VRRP_IP6;	/* IPv6 module */
 
