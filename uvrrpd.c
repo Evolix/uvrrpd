@@ -105,6 +105,8 @@ int main(int argc, char *argv[])
 
 	if (vnet.family == AF_INET)
 		vrrp_arp_cleanup(&vnet);
+	else /* AF_INET6 */
+		vrrp_na_cleanup(&vnet);
 
 	vrrp_cleanup(&vrrp);
 	vrrp_exec_cleanup(&vrrp);
