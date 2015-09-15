@@ -70,7 +70,7 @@ static int vrrp_arp_eth_build(struct iovec *iov, const uint8_t vrid)
 	struct ether_header *hdr = iov->iov_base;
 
 	if (hdr == NULL) {
-		log_error("[%d] malloc: %s", vrid, strerror(errno));
+		log_error("vrid %d :: malloc - %m", vrid);
 		return -1;
 	}
 
@@ -110,7 +110,7 @@ static int vrrp_arp_build(struct iovec *iov, const uint8_t vrid)
 	struct arphdr *arph = iov->iov_base;
 
 	if (arph == NULL) {
-		log_error("[%d] malloc: %s", vrid, strerror(errno));
+		log_error("vrid %d :: malloc - %m", vrid);
 		return -1;
 	}
 
@@ -136,7 +136,7 @@ static int vrrp_arp_vrrp_build(struct iovec *iov, struct vrrp_ip *vip,
 	struct arphdr_eth *arpeth = iov->iov_base;
 
 	if (arpeth == NULL) {
-		log_error("[%d] malloc: %s", vnet->vrid, strerror(errno));
+		log_error("vrid %d :: malloc - %m", vnet->vrid);
 		return -1;
 	}
 

@@ -76,7 +76,7 @@ static inline int timespec_substract(struct timespec *result,
 int vrrp_timer_set(struct vrrp_timer *timer, time_t delay, long delay_cs)
 {
 	if (clock_gettime(CLOCK_MONOTONIC_RAW, &timer->ts) == -1) {
-		log_error("clock_gettime: %s", strerror(errno));
+		log_error("clock_gettime: %m");
 		return -1;
 	}
 
@@ -138,7 +138,7 @@ int vrrp_timer_update(struct vrrp_timer *timer)
 	struct timespec ts;
 
 	if (clock_gettime(CLOCK_MONOTONIC_RAW, &ts) == -1) {
-		log_error("clock_gettime: %s", strerror(errno));
+		log_error("clock_gettime: %m");
 		return -1;	/* TODO die() */
 	}
 

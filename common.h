@@ -168,7 +168,7 @@ static inline int split_ip_netmask(int family,
 	}
 
 	if (inet_pton(family, str, addr) == 0) {
-		log_error("inet_pton - %s", strerror(errno));
+		log_error("inet_pton - %m");
 		return -1;
 	}
 

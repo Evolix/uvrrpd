@@ -83,14 +83,14 @@ static int vrrp_ip6_setsockopt(int socket, int vrid)
 	/* IPV6_RECVPKTINFO */
 	if (setsockopt
 	    (socket, IPPROTO_IPV6, IPV6_RECVPKTINFO, &on, sizeof(on)) < 0) {
-		log_error("vrid %d :: setsockopt - %s", vrid, strerror(errno));
+		log_error("vrid %d :: setsockopt - %m", vrid);
 		return -1;
 	}
 
 	/* IPV6_RECVHOPLIMIT */
 	if (setsockopt
 	    (socket, IPPROTO_IPV6, IPV6_RECVHOPLIMIT, &on, sizeof(on)) < 0) {
-		log_error("vrid %d :: setsockopt - %s", vrid, strerror(errno));
+		log_error("vrid %d :: setsockopt - %m", vrid);
 		return -1;
 	}
 
@@ -107,8 +107,7 @@ static int vrrp_ip6_mgroup(struct vrrp_net *vnet)
 	struct in6_addr group_addr = IN6ADDR_ANY_INIT;
 
 	if (inet_pton(AF_INET6, VRRP_MGROUP6, &group_addr) < 0) {
-		log_error("vrid %d :: inet_pton - %s", vnet->vrid,
-			  strerror(errno));
+		log_error("vrid %d :: inet_pton - %m", vnet->vrid);
 		return -1;
 	}
 
@@ -119,8 +118,7 @@ static int vrrp_ip6_mgroup(struct vrrp_net *vnet)
 	if (setsockopt
 	    (vnet->socket, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP, &group,
 	     sizeof(struct ipv6_mreq)) < 0) {
-		log_error("vrid %d :: setsockopt - %s", vnet->vrid,
-			  strerror(errno));
+		log_error("vrid %d :: setsockopt - %m", vnet->vrid);
 		return -1;
 	}
 
@@ -212,7 +210,7 @@ static int vrrp_ip6_recv(int sock_fd, struct vrrp_recv *recv,
 	len = recvmsg(sock_fd, &msg, 0);
 
 	if (len < 0) {
-		log_error("recvmsg - %s", strerror(errno));
+		log_error("recvmsg - %m");
 		return -1;
 	}
 

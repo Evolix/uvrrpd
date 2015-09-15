@@ -83,8 +83,7 @@ static int vrrp_ip4_mgroup(struct vrrp_net *vnet)
 	struct in_addr group_addr = { 0 };
 
 	if (inet_pton(AF_INET, VRRP_MGROUP4, &group_addr) < 0) {
-		log_error("vrid %d :: inet_pton - %s", vnet->vrid,
-			  strerror(errno));
+		log_error("vrid %d :: inet_pton - %m", vnet->vrid);
 		return -1;
 	}
 	group.imr_multiaddr.s_addr = group_addr.s_addr;
@@ -93,8 +92,7 @@ static int vrrp_ip4_mgroup(struct vrrp_net *vnet)
 	if (setsockopt
 	    (vnet->socket, IPPROTO_IP, IP_ADD_MEMBERSHIP, &group,
 	     sizeof(struct ip_mreq)) < 0) {
-		log_error("vrid %d :: setsockopt - %s", vnet->vrid,
-			  strerror(errno));
+		log_error("vrid %d :: setsockopt - %m", vnet->vrid);
 		return -1;
 	}
 

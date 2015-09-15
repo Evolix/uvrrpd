@@ -68,7 +68,7 @@ static int vrrp_adv_eth_build(struct iovec *iov, const uint8_t vrid,
 	struct ether_header *hdr = iov->iov_base;
 
 	if (hdr == NULL) {
-		log_error("[%d] malloc: %s", vrid, strerror(errno));
+		log_error("vrid %d :: malloc - %m", vrid);
 		return -1;
 	}
 
@@ -94,7 +94,7 @@ static int vrrp_adv_ip4_build(struct iovec *iov, const struct vrrp_net *vnet)
 	struct iphdr *iph = iov->iov_base;
 
 	if (iph == NULL) {
-		log_error("[%d] malloc: %s", vnet->vrid, strerror(errno));
+		log_error("vrid %d :: malloc - %m", vnet->vrid);
 		return -1;
 	}
 
@@ -128,7 +128,7 @@ static int vrrp_adv_ip6_build(struct iovec *iov, const struct vrrp_net *vnet)
 	struct ip6_hdr *ip6h = iov->iov_base;
 
 	if (ip6h == NULL) {
-		log_error("[%d] malloc: %s", vnet->vrid, strerror(errno));
+		log_error("vrid %d :: malloc - %m", vnet->vrid);
 		return -1;
 	}
 
@@ -140,7 +140,7 @@ static int vrrp_adv_ip6_build(struct iovec *iov, const struct vrrp_net *vnet)
 	memcpy(&ip6h->ip6_src, &vnet->vif.ip_addr6, sizeof(struct in6_addr));
 
 	if (inet_pton(AF_INET6, IN6ADDR_VRRP_GROUP, &(ip6h->ip6_dst)) != 1) {
-		log_error("[%d] inet_pton: %s", vnet->vrid, strerror(errno));
+		log_error("vrid %d :: inet_pton - %m", vnet->vrid);
 		return -1;
 	}
 
@@ -160,7 +160,7 @@ static int vrrp_adv_build(struct iovec *iov, const struct vrrp_net *vnet,
 	struct vrrphdr *pkt = iov->iov_base;
 
 	if (pkt == NULL) {
-		log_error("[%d] malloc: %s", vnet->vrid, strerror(errno));
+		log_error("vrid %d :: malloc - %m", vnet->vrid);
 		return -1;
 	}
 
@@ -200,7 +200,7 @@ static int vrrp_adv_build(struct iovec *iov, const struct vrrp_net *vnet,
 
 		if (naddr > vrrp->naddr) {
 			log_error
-			    ("[%d] Build invalid avd pkt : try to write more vip than expected",
+			    ("vrid %d :: Build invalid avd pkt, try to write more vip than expected",
 			     vnet->vrid);
 			return -1;
 		}

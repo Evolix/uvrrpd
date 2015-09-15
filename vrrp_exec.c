@@ -116,8 +116,8 @@ int vrrp_exec(struct vrrp *vrrp, const struct vrrp_net *vnet, vrrp_state state)
 		scriptname = vrrp->scriptname;
 
 	if (!is_file_executable(scriptname)) {
-		log_error("File %s doesn't exist or is not executable",
-			  scriptname);
+		log_error("vrid %d :: File %s doesn't exist or is not executable",
+			  vrrp->vrid, scriptname);
 		return -1;
 	}
 
@@ -141,7 +141,7 @@ int vrrp_exec(struct vrrp *vrrp, const struct vrrp_net *vnet, vrrp_state state)
 	int status, savedErrno;
 
 	if (child == -1) {
-		log_error("fork: %s", strerror(errno));
+		log_error("vrid %d :: fork - %m", vrrp->vrid);
 		vrrp_exec_cleanup(vrrp);
 		return -1;
 	}
@@ -160,7 +160,7 @@ int vrrp_exec(struct vrrp *vrrp, const struct vrrp_net *vnet, vrrp_state state)
 		/* execve */
 		execve(scriptname, (char *const *) vrrp->argv, NULL);
 
-		log_error("execve: %s", strerror(errno));
+		log_error("vrid %d :: execve - %m", vrrp->vrid);
 		vrrp_exec_cleanup(vrrp);
 		return -1;
 	}
@@ -170,7 +170,7 @@ int vrrp_exec(struct vrrp *vrrp, const struct vrrp_net *vnet, vrrp_state state)
 
 		while (waitpid(child, &status, 0) == -1) {
 			if (errno != EINTR) {	/* Error other than EINTR */
-				log_error("waitpid: %s", strerror(errno));
+				log_error("vrid %d :: waitpid - %m", vrrp->vrid);
 				status = -1;
 				break;	/* So exit loop */
 			}
@@ -195,14 +195,14 @@ int vrrp_exec_init(struct vrrp *vrrp)
 	vrrp->argv = malloc(sizeof(char *) * SCRIPT_NARGS);
 
 	if (vrrp->argv == NULL) {
-		log_error("malloc: %s", strerror(errno));
+		log_error("vrid %d :: malloc - %m", vrrp->vrid);
 		return -1;
 	}
 
 	for (int i = 0; i < SCRIPT_NARGS - 1; ++i) {
 		vrrp->argv[i] = malloc(sizeof(char) * SCRIPT_ARG_MAX);
 		if (vrrp->argv[i] == NULL) {
-			log_error("malloc: %s", strerror(errno));
+			log_error("vrid %d :: malloc - %m", vrrp->vrid);
 			return -1;
 		}
 		bzero(vrrp->argv[i], sizeof(char) * SCRIPT_ARG_MAX);

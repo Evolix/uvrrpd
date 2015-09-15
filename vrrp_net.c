@@ -103,8 +103,7 @@ int vrrp_net_socket(struct vrrp_net *vnet)
 	vnet->socket = socket(vnet->family, SOCK_RAW, IPPROTO_VRRP);
 
 	if (vnet->socket < 0) {
-		log_error("vrid %d :: socket - %s", vnet->vrid,
-			  strerror(errno));
+		log_error("vrid %d :: socket - %m", vnet->vrid);
 		return -1;
 	}
 
@@ -131,8 +130,7 @@ int vrrp_net_socket_xmit(struct vrrp_net *vnet)
 	vnet->xmit = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 
 	if (vnet->xmit < 0) {
-		log_error("vrid %d :: socket xmit - %s", vnet->vrid,
-			  strerror(errno));
+		log_error("vrid %d :: socket xmit - %m", vnet->vrid);
 		return -1;
 	}
 
@@ -150,8 +148,7 @@ int vrrp_net_vif_getaddr(struct vrrp_net *vnet)
 	int family;
 
 	if (getifaddrs(&ifaddr) == -1) {
-		log_error("vrid %d :: getifaddrs - %s", vnet->vrid,
-			  strerror(errno));
+		log_error("vrid %d :: getifaddrs - %m", vnet->vrid);
 		return -1;
 	}
 
@@ -202,7 +199,7 @@ int vrrp_net_vif_mtu(struct vrrp_net *vnet)
 	ifr.ifr_addr.sa_family = AF_INET;
 
 	if (ioctl(fd, SIOCGIFMTU, &ifr) < 0) {
-		log_error("vrid %d :: ioctl - %s", vnet->vrid, strerror(errno));
+		log_error("vrid %d :: ioctl - %m", vnet->vrid);
 		return -1;
 	}
 
@@ -223,8 +220,7 @@ int vrrp_net_vip_set(struct vrrp_net *vnet, const char *ip)
 	struct vrrp_ip *vip = malloc(sizeof(struct vrrp_ip));
 
 	if (vip == NULL) {
-		log_error("vrid %d :: malloc - %s", vnet->vrid,
-			  strerror(errno));
+		log_error("vrid %d :: malloc - %m", vnet->vrid);
 		return -1;
 	}
 
@@ -327,8 +323,7 @@ int vrrp_net_listen(struct vrrp_net *vnet, struct vrrp *vrrp)
 			return SIGNAL;
 		}
 
-		log_error("vrid %d :: pselect - %s %d", vrrp->vrid,
-			  strerror(errno), errno);
+		log_error("vrid %d :: pselect - %m", vrrp->vrid);
 	}
 
 	return INVALID;
@@ -514,8 +509,7 @@ int vrrp_net_send(const struct vrrp_net *vnet, struct iovec *iov, size_t len)
 	device.sll_ifindex = if_nametoindex(vnet->vif.ifname);
 
 	if (device.sll_ifindex == 0) {
-		log_error("vrid %d :: if_nametoindex - %s", vnet->vrid,
-			  strerror(errno));
+		log_error("vrid %d :: if_nametoindex - %m", vnet->vrid);
 		return -1;
 	}
 
@@ -530,8 +524,7 @@ int vrrp_net_send(const struct vrrp_net *vnet, struct iovec *iov, size_t len)
 	msg.msg_flags = 0;
 
 	if (sendmsg(vnet->xmit, &msg, 0) < 0) {
-		log_error("vrid %d :: sendmsg - %s", vnet->vrid,
-			  strerror(errno));
+		log_error("vrid %d :: sendmsg - %m", vnet->vrid);
 		return -1;
 	}
 
