@@ -24,6 +24,8 @@
 
 #include "bits.h"
 
+#define PIDFILE_NAME	"/var/run/uvrrpd_%d.pid"
+
 /** 
  * uvrrpd_control
  * Enum server control register flags

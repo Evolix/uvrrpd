@@ -33,6 +33,7 @@
 /* from uvrrpd.c */
 extern int background;
 extern char *loglevel;
+extern char *pidfile_name;
 
 /**
  * vrrp_usage()
@@ -58,9 +59,8 @@ static void vrrp_usage(void)
 		"  -a, --auth pass           Simple text password (only in VRRPv2)\n"
 		"  -f, --foreground          Execute uvrrpd in foreground\n"
 		"  -s, --script              Path of hook script (default /etc/uvrrpd/uvrrpd-switch.sh)\n"
-#if 0  /* todo */
-		"      --pidfile name        Create pid file 'name'\n"
-#endif
+		"  -F  --pidfile name        Create pid file 'name'\n"
+		"                            Default /var/run/uvrrp_${vrid}.pid\n"
 		"  -d, --debug\n" "  -h, --help\n");
 }
 
@@ -84,13 +84,14 @@ int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 		{"auth", required_argument, 0, 'a'},
 		{"foreground", no_argument, 0, 'f'},
 		{"script", required_argument, 0, 's'},
+		{"pidfile", required_argument, 0, 'F'},
 		{"debug", no_argument, 0, 'd'},
 		{"help", no_argument, 0, 'h'},
 		{NULL, 0, 0, 0}
 	};
 
 	while ((optc =
-		getopt_long(argc, argv, "v:i:p:t:P:r:6a:fs:dh", opts,
+		getopt_long(argc, argv, "v:i:p:t:P:r:6a:fs:F:dh", opts,
 			    NULL)) != EOF) {
 		switch (optc) {
 
@@ -191,6 +192,11 @@ int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 				perror("strndup");
 				return -1;
 			}
+			break;
+
+			/* pidfile */
+		case 'F':
+			pidfile_name = strndup(optarg, NAME_MAX + PATH_MAX);
 			break;
 
 			/* debug */

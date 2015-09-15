@@ -60,6 +60,8 @@ Optional arguments:
   -a, --auth pass           Simple text password (only in VRRPv2)
   -f, --foreground          Execute uvrrpd in foreground
   -s, --script              Path of hook script (default /etc/uvrrpd/uvrrpd-switch.sh)
+  -F  --pidfile		    Create pid file 'name
+                            Default /var/run/uvrrp_${vrid}.pid
   -d, --debug
   -h, --help
 ```

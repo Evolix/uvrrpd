@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/file.h>
 
 #include "uvrrpd.h"
 #include "vrrp.h"
@@ -35,12 +36,19 @@
 
 #include "log.h"
 
+/* global constants */
 unsigned long reg = 0UL;
 int background = 1;
 char *loglevel = NULL;
+char *pidfile_name = NULL;
 
+/* local methods */
 static void signal_handler(int sig);
 static void signal_setup(void);
+static int pidfile_init(int vrid);
+static void pidfile_unlink(void);
+static void pidfile_check(int vrid);
+static void pidfile(int vrid);
 
 /**
  * main() - entry point
@@ -63,6 +71,12 @@ int main(int argc, char *argv[])
 	/* cmdline options */
 	if (! !vrrp_options(&vrrp, &vnet, argc, argv))
 		exit(EXIT_FAILURE);
+
+	/* pidfile init && check */
+	if (pidfile_init(vrrp.vrid) != 0)
+		exit(EXIT_FAILURE);
+
+	pidfile_check(vrrp.vrid);
 
 	/* logs */
 	log_open("uvrrpd", (char const *) loglevel);
@@ -96,6 +110,10 @@ int main(int argc, char *argv[])
 	else
 		chdir("/");
 
+
+	/* pidfile */
+	pidfile(vrrp.vrid);
+
 	/* process */
 	set_bit(KEEP_GOING, &reg);
 	while (test_bit(KEEP_GOING, &reg) && !vrrp_process(&vrrp, &vnet));
@@ -105,7 +123,7 @@ int main(int argc, char *argv[])
 
 	if (vnet.family == AF_INET)
 		vrrp_arp_cleanup(&vnet);
-	else /* AF_INET6 */
+	else	/* AF_INET6 */
 		vrrp_na_cleanup(&vnet);
 
 	vrrp_cleanup(&vrrp);
@@ -114,6 +132,8 @@ int main(int argc, char *argv[])
 
 	log_close();
 	free(loglevel);
+	pidfile_unlink();
+	free(pidfile_name);
 
 	return EXIT_SUCCESS;
 }
@@ -200,4 +220,120 @@ static void signal_setup(void)
 	sigaddset(&sa.sa_mask, SIGUSR2);
 
 	sigprocmask(SIG_BLOCK, &sa.sa_mask, NULL);
+}
+
+/**
+ * pidfile_init() 
+ */
+static int pidfile_init(int vrid)
+{
+	int max_len = NAME_MAX + PATH_MAX;
+	if (pidfile_name == NULL) {
+		pidfile_name = malloc(max_len);
+		if (pidfile_name == NULL) {
+			log_error("vrid %d :: malloc - %m", vrid);
+			return -1;
+		}
+
+		snprintf(pidfile_name, max_len, PIDFILE_NAME, vrid);
+	}
+
+	return 0;
+}
+
+/**
+ * pidfile_unlink() - remove pidfile
+ */
+static void pidfile_unlink(void)
+{
+	if (pidfile_name)
+		unlink(pidfile_name);
+}
+
+/**
+ * pidfile_check()
+ */
+static void pidfile_check(int vrid)
+{
+	struct flock fl;
+	int err, fd;
+
+	fd = open(pidfile_name, O_RDONLY | O_CLOEXEC);
+	if (fd < 0) {
+		if (errno == ENOENT)
+			return;
+		fprintf(stderr, "vrid %d :: error opening PID file %s: %m\n",
+			vrid, pidfile_name);
+		exit(EXIT_FAILURE);
+	}
+
+	fl.l_type = F_WRLCK;
+	fl.l_whence = SEEK_SET;
+	fl.l_start = 0;
+	fl.l_len = 0;
+
+	err = fcntl(fd, F_GETLK, &fl);
+	close(fd);
+	if (err < 0) {
+		fprintf(stderr, "vrid %d :: error getting PID file %s lock: %m",
+			vrid, pidfile_name);
+		exit(EXIT_FAILURE);
+	}
+
+	if (fl.l_type == F_UNLCK)
+		return;
+
+	fprintf(stderr, "vrid %d :: uvrrpd is already running (pid %d)\n", vrid,
+		(int) fl.l_pid);
+	exit(EXIT_FAILURE);
+}
+
+/**
+ * pid_file()
+ */
+static void pidfile(int vrid)
+{
+	struct flock fl;
+	char buf[16];
+	int err, fd;
+
+	fd = open(pidfile_name,
+		  O_WRONLY | O_CREAT | O_CLOEXEC, S_IRUSR | S_IWUSR);
+	if (fd < 0) {
+		log_error("vrid %d :: error opening PID file %s: %m\n", vrid,
+			  pidfile_name);
+		exit(EXIT_FAILURE);
+	}
+
+	fl.l_type = F_WRLCK;
+	fl.l_whence = SEEK_SET;
+	fl.l_start = 0;
+	fl.l_len = 0;
+
+	err = fcntl(fd, F_SETLK, &fl);
+	if (err < 0) {
+		if (errno == EACCES || errno == EAGAIN) {
+			log_error("vrid %d :: uvrrpd is already running\n",
+				  vrid);
+			exit(EXIT_FAILURE);
+		}
+		log_error("vrid %d :: error setting PID file %s lock: %m\n",
+			  vrid, pidfile_name);
+		exit(EXIT_FAILURE);
+	}
+
+	atexit(pidfile_unlink);
+
+	err = snprintf(buf, sizeof(buf), "%d\n", (int) getpid());
+	if (err < 0) {
+		perror("snprintf");
+		exit(EXIT_FAILURE);
+	}
+
+	err = write(fd, buf, err);
+	if (err < 0) {
+		log_error("vrid %d :: error writing PID to PID file %s: %m\n",
+			  vrid, pidfile_name);
+		exit(EXIT_FAILURE);
+	}
 }
