@@ -36,6 +36,7 @@
 #define IN6ADDR_MCAST "ff02::1"
 
 #define ETHDR_SIZE sizeof(struct ether_header)
+
 /**
  * ether_header vrrp_na_eth
  */
@@ -49,7 +50,6 @@ static struct ether_header vrrp_na_eth = {
 			0x01,
 			0x00},	/* vrrp->vrid */
 };
-
 
 /**
  * pshdr_ip6 - pseudo header IPv6
@@ -205,7 +205,7 @@ int vrrp_na_send(struct vrrp_net *vnet)
  */
 int vrrp_na_init(struct vrrp_net *vnet)
 {
-	int status = 0;
+	int status = -1;
 
 	/* we have to build one na pkt by vip */
 	struct vrrp_ip *vip_ptr = NULL;

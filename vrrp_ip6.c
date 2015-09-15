@@ -127,7 +127,6 @@ static int vrrp_ip6_mgroup(struct vrrp_net *vnet)
 	return 0;
 }
 
-
 /**
  * vrrp_ip6_cmp() - Compare VIP list between received vrrpkt and our instance
  * Return 0 if the list is the same,
@@ -137,11 +136,6 @@ static int vrrp_ip6_viplist_cmp(struct vrrp_net *vnet, struct vrrphdr *vrrpkt)
 {
 	uint32_t *vip_addr =
 	    (uint32_t *) ((unsigned char *) vrrpkt + VRRP_PKTHDR_SIZE);
-
-#ifdef DEBUG
-	print_buf_hexa("vrrp_net_vip6_check vip_addr", vip_addr,
-		       sizeof(struct in6_addr));
-#endif
 
 	uint32_t pos = 0;
 	int naddr = 0;
@@ -222,13 +216,11 @@ static int vrrp_ip6_recv(int sock_fd, struct vrrp_recv *recv,
 		return -1;
 	}
 
-	/* SRC ADDRESS */
+	/* src address */
 	memcpy(&recv->ip_saddr6, &src.sin6_addr, sizeof(struct in6_addr));
 
-	uint8_t *opt;
-
-	/* HOPLIMIT */
-	opt = find_ancillary(&msg, IPV6_HOPLIMIT);
+	/* hoplimit */
+	uint8_t *opt = find_ancillary(&msg, IPV6_HOPLIMIT);
 	if (opt == NULL) {
 		log_error("recvmsg - unknown hop limit");
 		return -1;
@@ -236,7 +228,7 @@ static int vrrp_ip6_recv(int sock_fd, struct vrrp_recv *recv,
 
 	recv->header.ttl = *(int *) opt;
 
-	/* DST ADDRESS */
+	/* dst address */
 	opt = find_ancillary(&msg, IPV6_PKTINFO);
 	if (opt == NULL) {
 		log_error("recvmsg - unknown dst address");
@@ -247,9 +239,11 @@ static int vrrp_ip6_recv(int sock_fd, struct vrrp_recv *recv,
 
 	memcpy(&recv->ip_daddr6, &pktinfo->ipi6_addr, sizeof(struct in6_addr));
 
+	/* other options */
 	recv->header.len = sizeof(struct ip6_hdr);
 	recv->header.totlen = recv->header.len + len;
-	/* kludge, we force it since we have no way to read it in recvmsg() */
+	/* kludge, we force it since we have no way to read it in recvmsg().
+	 * But we have set IPPROTO_VRRP in vrrp_net_socket() */
 	recv->header.proto = IPPROTO_VRRP;
 
 	/* buf is directly filled with VRRP adv

@@ -72,15 +72,15 @@ int vrrp_state_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
 	char straddr[INET6_ADDRSTRLEN];
 
 	switch (event) {
-	case TIMER:
+	case TIMER:	/* TIMER expired */
 		log_notice("vrid %d :: %s", vrrp->vrid,
 			   "masterdown_timer expired");
 
 		vrrp_state_goto_master(vrrp, vnet);
 		break;
 
-	case PKT:	/* valid PKT adv */
-		/* Must be impossible */
+	case PKT:	/* PKT received */
+		/* Must be impossible, invalid received adv buffer */
 		if (vrrp_adv_get_version(vnet) == 0) {
 			log_error("vrid %d :: %s", vrrp->vrid,
 				  "recv buffer empty !?");
@@ -119,13 +119,6 @@ int vrrp_state_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
 			if (vrrp->version == RFC5798)
 				vrrp->master_adv_int =
 				    vrrp_adv_get_advint(vnet);
-
-#ifdef DEBUG
-			print_buf_hexa("hexa master_adv_int",
-				       &vrrp->master_adv_int, sizeof(uint16_t));
-#endif
-
-
 
 			VRRP_SET_MASTERDOWN_TIMER(vrrp);
 			break;
@@ -166,7 +159,6 @@ int vrrp_state_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
 	return event;
 }
 
-
 /**
  * vrrp_state_master() - handle master state
  */
@@ -175,14 +167,15 @@ int vrrp_state_master(struct vrrp *vrrp, struct vrrp_net *vnet)
 	int event = vrrp_net_listen(vnet, vrrp);
 
 	switch (event) {
-	case TIMER:
+	case TIMER:	/* TIMER expired */
 		/* adv_timer expired, time to send another */
 		log_info("vrid %d :: %s", vrrp->vrid, "adv_timer expired");
 		vrrp_adv_send(vnet);
 		VRRP_SET_ADV_TIMER(vrrp);
 		break;
 
-	case PKT:
+	case PKT:	/* PKT received */
+		/* Must be impossible, invalid adv received buffer */
 		if (vrrp_adv_get_version(vnet) == 0) {
 			log_error("vrid %d :: %s", vrrp->vrid,
 				  "recv buffer empty !?");
@@ -320,6 +313,7 @@ static int vrrp_state_goto_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
 	if (previous_state != INIT)
 		vrrp_exec(vrrp, vnet, vrrp->state);
 
+	/* RFC5798, use of master_adv_int */
 	if (vrrp->version == RFC5798) {
 		if (previous_state == INIT)
 			vrrp->master_adv_int = vrrp->adv_int;

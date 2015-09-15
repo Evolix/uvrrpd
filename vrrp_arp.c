@@ -161,7 +161,7 @@ static int vrrp_arp_vrrp_build(struct iovec *iov, struct vrrp_ip *vip,
  */
 int vrrp_arp_init(struct vrrp_net *vnet)
 {
-	int status = 0;
+	int status = -1;
 
 	/* we have to build one arp pkt by vip */
 	struct vrrp_ip *vip_ptr = NULL;
@@ -192,6 +192,5 @@ void vrrp_arp_cleanup(struct vrrp_net *vnet)
 			struct iovec *iov = &vip_ptr->__topology[i];
 			free(iov->iov_base);
 		}
-
 	}
 }

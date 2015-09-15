@@ -254,6 +254,7 @@ static int vrrp_ip4_setsockopt( __attribute__ ((unused))
 			       int sock_fd, __attribute__ ((unused))
 			       int vrid)
 {
+	/* nop */
 	return 0;
 }
 

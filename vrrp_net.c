@@ -50,11 +50,6 @@
 
 #include "linux/types.h"
 
-
-
-
-#define VRRP_MGROUP4     "224.0.0.18"
-#define VRRP_MGROUP6     "ff02::12"
 #define VRRP_TTL         255
 
 static inline void vrrp_net_invalidate_buffer(struct vrrp_net *vnet);

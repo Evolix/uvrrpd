@@ -48,7 +48,6 @@ int vrrp_timer_update(struct vrrp_timer *timer);
 int vrrp_timer_is_expired(struct vrrp_timer *timer);
 
 /* Specific VRRP timer macros */
-
 #define SKEW_TIME( v )      \
     ( (256 - v->priority) * \
     (v->version==3?v->master_adv_int:1) / 256 )

@@ -84,7 +84,6 @@ static int vrrp_adv_eth_build(struct iovec *iov, const uint8_t vrid,
 	return 0;
 }
 
-
 /**
  * vrrp_adv_ip4_build() - build VRRP IPv4 advertisement
  */
@@ -108,7 +107,7 @@ static int vrrp_adv_ip4_build(struct iovec *iov, const struct vrrp_net *vnet)
 	iph->frag_off = 0x00;
 	iph->protocol = IPPROTO_VRRP;
 
-	iph->saddr = vnet->vif.ipx.addr.s_addr;
+	iph->saddr = vnet->vif.ip_addr.s_addr;
 	iph->daddr = htonl(INADDR_VRRP_GROUP);
 
 	iph->check = 0;
@@ -118,7 +117,6 @@ static int vrrp_adv_ip4_build(struct iovec *iov, const struct vrrp_net *vnet)
 
 	return 0;
 }
-
 
 /**
  * vrrp_adv_ip6_build() - build VRRP IPv6 advertisement
@@ -151,8 +149,6 @@ static int vrrp_adv_ip6_build(struct iovec *iov, const struct vrrp_net *vnet)
 	return 0;
 }
 
-
-
 /**
  * vrrp_net_adv_build() - build VRRP adv pkt
  */
@@ -172,11 +168,12 @@ static int vrrp_adv_build(struct iovec *iov, const struct vrrp_net *vnet,
 	pkt->vrid = vnet->vrid;
 	pkt->priority = vrrp->priority;
 	pkt->naddr = vrrp->naddr;
+
 	if (vrrp->version == RFC3768) {
 		pkt->auth_type = vrrp->auth_type;
 		pkt->adv_int = vrrp->adv_int;
 	}
-	if (vrrp->version == RFC5798) {
+	else if (vrrp->version == RFC5798) {
 		pkt->max_adv_int = htons(vrrp->adv_int);
 	}
 
@@ -189,6 +186,7 @@ static int vrrp_adv_build(struct iovec *iov, const struct vrrp_net *vnet,
 	int naddr = 0;
 
 	list_for_each_entry_reverse(vip_ptr, &vnet->vip_list, iplist) {
+
 		if (vnet->family == AF_INET) {
 			vip_addr[pos] = vip_ptr->ip_addr.s_addr;
 			++pos;
@@ -199,6 +197,7 @@ static int vrrp_adv_build(struct iovec *iov, const struct vrrp_net *vnet,
 			pos += 4;
 		}
 		++naddr;
+
 		if (naddr > vrrp->naddr) {
 			log_error
 			    ("[%d] Build invalid avd pkt : try to write more vip than expected",
@@ -246,7 +245,6 @@ int vrrp_adv_send_zero(struct vrrp_net *vnet)
 	uint16_t chksum = pkt->chksum;
 
 	/* chksum */
-
 	pkt->chksum = vnet->adv_checksum(vnet, pkt, NULL, NULL);
 
 	/* send adv pkt */
@@ -264,13 +262,15 @@ int vrrp_adv_send_zero(struct vrrp_net *vnet)
  */
 int vrrp_adv_init(struct vrrp_net *vnet, const struct vrrp *vrrp)
 {
-	int status = 0;
+	int status = -1;
 
 	status = vrrp_adv_eth_build(&vnet->__adv[0], vnet->vrid, vnet->family);
+
 	if (vnet->family == AF_INET)
 		status |= vrrp_adv_ip4_build(&vnet->__adv[1], vnet);
-	else
+	else /* AF_INET6 */
 		status |= vrrp_adv_ip6_build(&vnet->__adv[1], vnet);
+
 	status |= vrrp_adv_build(&vnet->__adv[2], vnet, vrrp);
 
 	return status;

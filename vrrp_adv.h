@@ -29,7 +29,6 @@ int vrrp_adv_send(struct vrrp_net *vnet);
 int vrrp_adv_send_zero(struct vrrp_net *vnet);
 uint16_t vrrp_adv_chksum(struct vrrp_net *vnet, struct vrrphdr *pkt,
 			 uint32_t saddr, uint32_t daddr);
-
 uint16_t vrrp_adv_ip6_chksum(struct vrrp_net *vnet, struct vrrphdr *pkt,
 			     struct in6_addr *saddr, struct in6_addr *daddr);
 

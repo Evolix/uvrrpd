@@ -83,11 +83,13 @@ int vrrp_timer_set(struct vrrp_timer *timer, time_t delay, long delay_cs)
 	timer->ts.tv_sec += delay;
 	timer->ts.tv_nsec += delay_cs * CENTUL;
 
+#ifdef DEBUG
 	log_debug("delay %ld", delay);
 	log_debug("delay_cs %ld", delay_cs);
 
 	log_debug("timer->ts.tv_sec %ld", timer->ts.tv_sec);
 	log_debug("timer->ts.tv_nsec %ld", timer->ts.tv_nsec);
+#endif /* DEBUG */
 
 	/* reset delta */
 	timer->delta.tv_sec = 0;
@@ -148,8 +150,10 @@ int vrrp_timer_update(struct vrrp_timer *timer)
 	timer->ts.tv_sec = ts.tv_sec + timer->delta.tv_sec;
 	timer->ts.tv_nsec = ts.tv_nsec + timer->delta.tv_nsec;
 
+#ifdef DEBUG
 	log_debug("timer->ts.tv_sec %ld", timer->ts.tv_sec);
 	log_debug("timer->ts.tv_nsec %ld", timer->ts.tv_nsec);
+#endif /* DEBUG */
 
 	return 0;
 }

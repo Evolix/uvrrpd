@@ -242,7 +242,7 @@ int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 	/* default adv int */
 	if ((vrrp->version == RFC3768) && (vrrp->adv_int == 0))
 		vrrp->adv_int = 1;
-	if ((vrrp->version == RFC5798) && (vrrp->adv_int == 0))
+	else if ((vrrp->version == RFC5798) && (vrrp->adv_int == 0))
 		vrrp->adv_int = 100;
 
 	/* Get IP addresse from interface name */
