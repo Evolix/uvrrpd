@@ -1,0 +1,5 @@
+*.[oa]
+*~
+*.swp
+uvrrpd
+deploy.sh
