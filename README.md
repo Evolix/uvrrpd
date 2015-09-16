@@ -60,7 +60,7 @@ Optional arguments:
   -a, --auth pass           Simple text password (only in VRRPv2)
   -f, --foreground          Execute uvrrpd in foreground
   -s, --script              Path of hook script (default /etc/uvrrpd/uvrrpd-switch.sh)
-  -F  --pidfile		    Create pid file 'name
+  -F  --pidfile		    Create pid file 'name'
                             Default /var/run/uvrrp_${vrid}.pid
   -d, --debug
   -h, --help
@@ -104,7 +104,7 @@ eth0      Link encap:Ethernet  HWaddr 52:54:00:4f:48:3f
           collisions:0 txqueuelen:1000 
           RX bytes:965166 (942.5 KiB)  TX bytes:613308 (598.9 KiB)
 
-vrrp_eth0_42 Link encap:Ethernet  HWaddr 00:00:5e:00:01:2a  
+eth0_42   Link encap:Ethernet  HWaddr 00:00:5e:00:01:2a  
           inet addr:10.0.0.254  Bcast:0.0.0.0  Mask:255.255.255.255
           inet6 addr: fe80::200:5eff:fe00:12a/64 Scope:Link
           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
@@ -155,11 +155,9 @@ You can start an another VRRP instance on another GNU/Linux box or a router with
 
 ## TODOs
 
-* clean code...
-* fix bugs
-* make more tests (please help !)
+* make more tests
 * autoconf/autohell
-* add features like pidfile, interface monitoring ...
+* add features like interface monitoring...
 * init scripts
 * packaging
 
