@@ -17,7 +17,7 @@ adv_int\t\t$adv_int
 naddr\t\t$naddr
 ips\t\t$ips" > /tmp/state.vrrp_${vrid}_${ifname}
 
-interface=vrrp_${ifname}_${vrid}
+interface=${ifname}_${vrid}
 
 echo $ips
 
@@ -42,9 +42,9 @@ case "$state" in
 
         for ip in $ips; do
             ip -$family addr add $ip dev $interface 
-	    sysctl -w net.ipv6.conf.$interface.autoconf=0
-	    sysctl -w net.ipv6.conf.$interface.accept_ra=0
-	    sysctl -w net.ipv6.conf.$interface.forwarding=1
+	    sysctl -w net/ipv6/conf/$interface/autoconf=0
+	    sysctl -w net/ipv6/conf/$interface/accept_ra=0
+	    sysctl -w net/ipv6/conf/$interface/forwarding=1
         done
         ip link set dev $interface up
         
