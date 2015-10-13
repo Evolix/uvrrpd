@@ -413,6 +413,13 @@ int vrrp_net_recv(struct vrrp_net *vnet, const struct vrrp *vrrp)
 		return INVALID;
 	}
 
+    /* check if VRID is the same as the current instance */
+	if (vrrpkt->vrid != vrrp->vrid) {
+		log_info("vrid %d :: Invalid pkt - Invalid VRID %d",
+			 vrrp->vrid, vrrpkt->vrid);
+		return OTHERVRID;
+	}
+
 	/* verify VRRP checksum */
 	int chksum = vrrpkt->chksum;	/* save checksum */
 	if (vnet->adv_checksum(vnet, vrrpkt, &vnet->__pkt.s_ipx,
@@ -424,13 +431,6 @@ int vrrp_net_recv(struct vrrp_net *vnet, const struct vrrp *vrrp)
 	}
 	/* restore checksum */
 	vrrpkt->chksum = chksum;
-
-	/* check if VRID is the same as the current instance */
-	if (vrrpkt->vrid != vrrp->vrid) {
-		log_info("vrid %d :: Invalid pkt - Invalid VRID %d",
-			 vrrp->vrid, vrrpkt->vrid);
-		return OTHERVRID;
-	}
 
 	/* local router is the IP address owner
 	 * (Priority equals 255) 
