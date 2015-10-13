@@ -150,6 +150,9 @@ int vrrp_state_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
 
 		break;
 
+	case OTHERVRID:
+		break;
+
 	default:
 		log_error("vrid %d :: %s r:%d", vrrp->vrid, "unknown event",
 			  event);
@@ -256,6 +259,9 @@ int vrrp_state_master(struct vrrp *vrrp, struct vrrp_net *vnet)
 	case INVALID:
 		log_warning("vrid %d :: invalid event", vrrp->vrid);
 		break;
+
+	case OTHERVRID:
+                break;
 
 	default:
 		log_error("vrid %d :: %s r:%d", vrrp->vrid, "unknown event",

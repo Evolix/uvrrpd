@@ -143,7 +143,8 @@ enum vrrp_ret {
 	INVALID = -1,
 	PKT,	/* valid packet received */
 	SIGNAL,	/* signal catch */
-	TIMER	/* timer expired */
+	TIMER,	/* timer expired */
+	OTHERVRID = -50 /* Belongs to other VRID */
 };
 
 /*
