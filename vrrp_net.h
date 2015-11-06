@@ -139,12 +139,15 @@ struct vrrp_net {
 /**
  * enum vrrp_ret - Return code used in vrrp_net_listen
  */
-enum vrrp_ret {
-	INVALID = -1,
-	PKT,	/* valid packet received */
-	SIGNAL,	/* signal catch */
-	TIMER	/* timer expired */
+enum _vrrp_event_type {
+	VRID_MISMATCH = -2,	/* vrid mismatch */
+	INVALID = -1,           /* invalid pkt */
+	PKT,			/* valid packet */
+	SIGNAL,			/* signal catch */
+	TIMER			/* timer expired */
 };
+
+typedef enum _vrrp_event_type vrrp_event_t;
 
 /*
  * funcs
@@ -156,8 +159,8 @@ int vrrp_net_socket_xmit(struct vrrp_net *vnet);
 int vrrp_net_vif_getaddr(struct vrrp_net *vnet);
 int vrrp_net_vif_mtu(struct vrrp_net *vnet);
 int vrrp_net_vip_set(struct vrrp_net *vnet, const char *ip);
-int vrrp_net_listen(struct vrrp_net *vnet, struct vrrp *vrrp);
-int vrrp_net_recv(struct vrrp_net *vnet, const struct vrrp *vrrp);
+vrrp_event_t vrrp_net_listen(struct vrrp_net *vnet, struct vrrp *vrrp);
+vrrp_event_t vrrp_net_recv(struct vrrp_net *vnet, const struct vrrp *vrrp);
 int vrrp_net_send(const struct vrrp_net *vnet, struct iovec *iov, size_t len);
 
 #endif /* _VRRP_NET_ */

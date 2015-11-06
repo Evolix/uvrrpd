@@ -143,6 +143,10 @@ int vrrp_state_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
 
 		break;
 
+	case VRID_MISMATCH:
+		/* ignore VRRP pkt with different vrid */
+		break;
+
 	case INVALID:
 		log_warning("vrid %d :: %s %s, %s", vrrp->vrid,
 			    "receive an invalid advertisement packet from",
@@ -251,6 +255,10 @@ int vrrp_state_master(struct vrrp *vrrp, struct vrrp_net *vnet)
 			vrrp->state = INIT;
 		}
 
+		break;
+
+	case VRID_MISMATCH:
+		/* ignore VRRP pkt with different vrid */
 		break;
 
 	case INVALID:

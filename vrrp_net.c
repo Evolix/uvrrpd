@@ -252,10 +252,11 @@ int vrrp_net_vip_set(struct vrrp_net *vnet, const char *ip)
 /**
  * vrrp_net_listen() - Wait for a VRRP pkt on vnet->socket
  *
- * @return TIMER if current timer is expired
- * @return PKT else
+ * @return vrrp_event_t
+ *   TIMER if current timer is expired
+ *   another event else
  */
-int vrrp_net_listen(struct vrrp_net *vnet, struct vrrp *vrrp)
+vrrp_event_t vrrp_net_listen(struct vrrp_net *vnet, struct vrrp *vrrp)
 {
 	struct vrrp_timer *vt;
 
@@ -308,13 +309,7 @@ int vrrp_net_listen(struct vrrp_net *vnet, struct vrrp *vrrp)
 		log_debug("vrid %d :: VRRP pkt received", vrrp->vrid);
 
 		/* check if received is valid or not */
-		if (vrrp_net_recv(vnet, vrrp) > 0)
-			return PKT;
-		else {
-			log_error("vrid %d :: %s", vrrp->vrid,
-				  "Received an invalid packet");
-			return INVALID;
-		}
+		return vrrp_net_recv(vnet, vrrp);
 	}
 	else {	/* Signal or pselect error */
 		if (errno == EINTR) {
@@ -342,9 +337,9 @@ static inline void vrrp_net_invalidate_buffer(struct vrrp_net *vnet)
 /**
  * vrrp_net_recv() - read and check a received VRRP pkt advertisement
  *
- * @return len of VRRP pkt if valid, -1 if invalid
+ * @return vrrp_pkt_t
  */
-int vrrp_net_recv(struct vrrp_net *vnet, const struct vrrp *vrrp)
+vrrp_event_t vrrp_net_recv(struct vrrp_net *vnet, const struct vrrp *vrrp)
 {
 	/* fetch pkt data received to buf */
 	unsigned char buf[IP_MAXPACKET];
@@ -408,6 +403,13 @@ int vrrp_net_recv(struct vrrp_net *vnet, const struct vrrp *vrrp)
 		return INVALID;
 	}
 
+	/* check if VRID is the same as the current instance */
+	if (vrrpkt->vrid != vrrp->vrid) {
+		log_debug("vrid %d :: Invalid pkt - Invalid VRID %d",
+			 vrrp->vrid, vrrpkt->vrid);
+		return VRID_MISMATCH;
+	}
+
 	/* verify VRRP checksum */
 	int chksum = vrrpkt->chksum;	/* save checksum */
 	if (vnet->adv_checksum(vnet, vrrpkt, &vnet->__pkt.s_ipx,
@@ -419,13 +421,6 @@ int vrrp_net_recv(struct vrrp_net *vnet, const struct vrrp *vrrp)
 	}
 	/* restore checksum */
 	vrrpkt->chksum = chksum;
-
-	/* check if VRID is the same as the current instance */
-	if (vrrpkt->vrid != vrrp->vrid) {
-		log_info("vrid %d :: Invalid pkt - Invalid VRID %d",
-			 vrrp->vrid, vrrpkt->vrid);
-		return INVALID;
-	}
 
 	/* local router is the IP address owner
 	 * (Priority equals 255) 
@@ -490,7 +485,7 @@ int vrrp_net_recv(struct vrrp_net *vnet, const struct vrrp *vrrp)
 	/* pkt is valid, keep it in internal buffer */
 	memcpy(&vnet->__pkt.adv, vrrpkt, sizeof(struct vrrphdr));
 
-	return len;
+	return PKT;
 }
 
 /**
