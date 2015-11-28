@@ -70,7 +70,7 @@ static void vrrp_usage(void)
 int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 		 char *argv[])
 {
-	int optc;
+	int optc, err;
 	unsigned long opt;	/* strtoul */
 
 	static struct option const opts[] = {
@@ -97,13 +97,21 @@ int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 
 			/* vrid */
 		case 'v':
-			if ((mystrtoul(&opt, optarg, VRID_MAX) == -ERANGE)
-			    || (opt == 0)) {
+			err = mystrtoul(&opt, optarg, VRID_MAX);
+			if (err == -ERANGE || (err == 0 && opt == 0)) {
 				fprintf(stderr, "1 < vrid < 255\n");
 				vrrp_usage();
-				return -1;
+				return err;
 			}
-			vrrp->vrid = vnet->vrid = (uint8_t) opt;
+			if (err == -EINVAL) {
+				fprintf(stderr,
+					"Error parsing \"%s\" as a number\n",
+					optarg);
+				vrrp_usage();
+				return err;
+			}
+
+			vrrp->vrid = vnet->vrid = (uint8_t)opt;
 			break;
 
 			/* interface */
@@ -117,21 +125,39 @@ int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 
 			/* priority */
 		case 'p':
-			if (mystrtoul(&opt, optarg, VRRP_PRIO_MAX) == -ERANGE) {
+			err = mystrtoul(&opt, optarg, VRRP_PRIO_MAX);
+			if (err == -ERANGE) {
 				fprintf(stderr, "0 < priority < 255\n");
 				vrrp_usage();
 				return -1;
 			}
-			vrrp->priority = (uint8_t) opt;
+			if (err == -EINVAL) {
+				fprintf(stderr,
+					"Error parsing \"%s\" as a number\n",
+					optarg);
+				vrrp_usage();
+				return err;
+			}
+
+			vrrp->priority = (uint8_t)opt;
 			break;
 
 			/* delay */
 		case 't':
-			if (mystrtoul(&opt, optarg, ADVINT_MAX) == -ERANGE) {
+			err = mystrtoul(&opt, optarg, ADVINT_MAX);
+			if (err == -ERANGE) {
 				vrrp_usage();
 				return -1;
 			}
-			vrrp->adv_int = (uint16_t) opt;
+			if (err == -EINVAL) {
+				fprintf(stderr,
+					"Error parsing \"%s\" as a number\n",
+					optarg);
+				vrrp_usage();
+				return err;
+			}
+
+			vrrp->adv_int = (uint16_t)opt;
 			break;
 
 			/* preempt mode */
@@ -150,12 +176,20 @@ int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 
 			/* RFC - version */
 		case 'r':
-			if ((mystrtoul(&opt, optarg, RFC5798) == -ERANGE)
-			    || (opt < RFC3768)) {
-				fprintf(stderr, "Version 2 or 3 : %ld\n", opt);
+			err = mystrtoul(&opt, optarg, RFC5798);
+			if (err == -ERANGE || (err == 0 && opt < RFC3768)) {
+				fprintf(stderr, "Version 2 or 3 : %s\n", optarg);
 				vrrp_usage();
 				return -1;
 			}
+			if (err == -EINVAL) {
+				fprintf(stderr,
+					"Error parsing \"%s\" as a number\n",
+					optarg);
+				vrrp_usage();
+				return err;
+			}
+
 			vrrp->version = (uint8_t) opt;
 			break;
 

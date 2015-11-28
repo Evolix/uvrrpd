@@ -143,7 +143,7 @@ static inline int split_ip_netmask(int family,
 	char *tmp;
 	unsigned long ul;
 
-	int netmask_length;
+	int netmask_length, err;
 
 	/* IPv4 */
 	if (family == AF_INET)
@@ -159,9 +159,14 @@ static inline int split_ip_netmask(int family,
 	if (tmp != NULL) {
 		*tmp = '\0';
 		++tmp;
-		if (mystrtoul(&ul, tmp, netmask_length) == -ERANGE) {
+		err = mystrtoul(&ul, tmp, netmask_length);
+		if (err == -ERANGE) {
 			log_error("%s", "CIDR netmask out of range");
 			return -ERANGE;
+		}
+		if (err == -EINVAL) {
+			log_error("Error parsing %s as a number", tmp);
+			return -EINVAL;
 		}
 		if (netmask != NULL)
 			*netmask = (uint8_t) ul;
