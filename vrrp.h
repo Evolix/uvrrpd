@@ -41,7 +41,7 @@
 #define PRIO_DFL        100
 
 /* External script */
-#define VRRP_SCRIPT    PATH "/vrrp_switch.sh"
+#define VRRP_SCRIPT    stringify(PATH) "/vrrp_switch.sh"
 #define VRRP_SCRIPT_MAX sysconf(_SC_ARG_MAX)
 
 /* preemption */
