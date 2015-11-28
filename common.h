@@ -54,6 +54,9 @@ typedef enum {
 	( memcmp ( s, c_str, sizeof( c_str ) ) == 0 ); \
 })
 
+#define _stringify(x) #x
+#define stringify(x) _stringify(x)
+
 /**
  * ARRAY_SIZE()
  */
