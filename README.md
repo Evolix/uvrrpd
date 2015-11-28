@@ -1,11 +1,11 @@
 # uvrrpd
 
-uvrrpd is a VRRP daemon written in C, providing an full implementation of
+uvrrpd is a VRRP daemon written in C, providing a full implementation of
 VRRPv2 (rfc3768) and VRRPv3 (rfc5798), with IPv4 and IPv6 support.
 
 uvrrpd is a project hosted at [Evolix's forge](https://forge.evolix.org/projects/uvrrpd)
 
-uvrrpd is written for GNU/Linux and use macvlan in order to derivate multiple
+uvrrpd is written for GNU/Linux and use macvlan in order to derive multiple
 virtual NICs (virtual VRRP mac) from a single physical NIC.
 
 uvrrpd is a simply a VRRP state machine, and a script (*vrrp_switch.sh*) is in
@@ -25,16 +25,24 @@ It provides a network topology update by sending :
 
 ## Building
 
-For now, a dummy Makefile is used to build uvrrpd :
+uvrrpd uses the autotools, so to build it from the released tarball, follow the
+usual procedure.
 
 ```bash
-git clone https://forge.evolix.org/uvrrpd.git
-cd uvrrpd
-make 
+./configure
+make
+sudo make install
 ```
 
-That's all. You need the binary `uvrrpd` and the shell script *vrrp_switch.sh* to start playing. 
-In the future a more clean way to build && install will be provided.
+If building from the git sources, run:
+```bash
+autoreconf -i
+```
+before that.
+
+That's all. You need the binary `uvrrpd` and the shell script *vrrp_switch.sh*
+to start playing, they are installed in $prefix/sbin, the default prefix being
+/usr/local.
 
 ## Usage
 
