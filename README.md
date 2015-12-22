@@ -8,7 +8,7 @@ uvrrpd is a project hosted at [Evolix's forge](https://forge.evolix.org/projects
 uvrrpd is written for GNU/Linux and use macvlan in order to derive multiple
 virtual NICs (virtual VRRP mac) from a single physical NIC.
 
-uvrrpd is a simply a VRRP state machine, and a script (*vrrp_switch.sh*) is in
+uvrrpd is a simply VRRP state machine, and a script (*vrrp_switch.sh*) is in
 charge to create or destroy Virtual VRRP interfaces.
 
 uvrrpd is designed to run a single VRRP instance, but you can run multiple
@@ -164,11 +164,9 @@ You can start an another VRRP instance on another GNU/Linux box or a router with
 ## TODOs
 
 * make more tests
-* autoconf/autohell
 * add features like interface monitoring...
 * init scripts
 * packaging
 
 Any suggestions, ideas, patches or whatever are welcome and will be greatly
 appreciated !
-
