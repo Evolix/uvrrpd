@@ -3,3 +3,8 @@
 *.swp
 uvrrpd
 deploy.sh
+Makefile.in
+aclocal.m4
+config/
+configure
+autom4te.cache/
