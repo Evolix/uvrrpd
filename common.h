@@ -65,6 +65,15 @@ typedef enum {
  */
 #define ARRAY_SIZE(a)      (sizeof(a)/sizeof((a)[0]))
 
+/**
+ * max(a,b)
+ */
+#define max(a,b) \
+({ \
+	__typeof__ (a) _a = (a); \
+	__typeof__ (b) _b = (b); \
+ 	_a > _b ? _a : _b; \
+})
 
 /**
  * cksum - compute IP checksum 
