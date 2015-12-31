@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS = -I config
 sbin_SCRIPTS = vrrp_switch.sh
 EXTRA_DIST = vrrp_switch.sh
 
-AM_CPPFLAGS = $(DEBUG_OPTS) -DPATH="$(sbindir)"
+AM_CPPFLAGS = $(DEBUG_OPTS) -DPATH="$(sbindir)" -DPATHRUN="$(localestatedir)/run"
 
 AM_CFLAGS = -Wall -W -Werror
 

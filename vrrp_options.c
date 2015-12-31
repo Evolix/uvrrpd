@@ -58,9 +58,9 @@ static void vrrp_usage(void)
 		"  -6, --ipv6                IPv6 support, (only in VRRPv3)\n"
 		"  -a, --auth pass           Simple text password (only in VRRPv2)\n"
 		"  -f, --foreground          Execute uvrrpd in foreground\n"
-		"  -s, --script              Path of hook script (default /etc/uvrrpd/uvrrpd-switch.sh)\n"
+		"  -s, --script              Path of hook script (default "stringify(PATH)"/vrrp-switch.sh)\n"
 		"  -F  --pidfile name        Create pid file 'name'\n"
-		"                            Default /var/run/uvrrp_${vrid}.pid\n"
+		"                            Default "stringify(PATHRUN)"/uvrrp_${vrid}.pid\n"
 		"  -d, --debug\n" "  -h, --help\n");
 }
 
