@@ -52,6 +52,9 @@ static void vrrp_usage(void)
 		"  -t, --time delay          Time interval between advertisements\n"
 		"                            Seconds in VRRPv2 (default 1s),\n"
 		"                            Centiseconds in VRRPv3 (default 100cs)\n"
+		"  -T, --start-delay delay   Use custom delay in INIT state\n"
+		"                            Seconds in VRRPv2 (default 1s),\n"
+		"                            Centiseconds in VRRPv3 (default 100cs)\n"
 		"  -P, --preempt on|off      Switch preempt (default on)\n"
 		"  -r, --rfc version         Specify protocol 'version'\n"
 		"                            2 (VRRPv2, RFC3768) by default,\n"
@@ -81,6 +84,7 @@ int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 		{"interface", required_argument, 0, 'i'},
 		{"priority", required_argument, 0, 'p'},
 		{"time", required_argument, 0, 't'},
+		{"start-delay", required_argument, 0, 'T'},
 		{"preempt", required_argument, 0, 'P'},
 		{"rfc", required_argument, 0, 'r'},
 		{"ipv6", no_argument, 0, '6'},
@@ -95,7 +99,7 @@ int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 	};
 
 	while ((optc =
-		getopt_long(argc, argv, "v:i:p:t:P:r:6a:fs:F:C:dh", opts,
+		getopt_long(argc, argv, "v:i:p:t:T:P:r:6a:fs:F:C:dh", opts,
 			    NULL)) != EOF) {
 		switch (optc) {
 
@@ -162,6 +166,24 @@ int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 			}
 
 			vrrp->adv_int = (uint16_t) opt;
+			break;
+
+			/* start delay */
+		case 'T':
+			err = mystrtoul(&opt, optarg, ADVINT_MAX);
+			if (err == -ERANGE) {
+				vrrp_usage();
+				return -1;
+			}
+			if (err == -EINVAL) {
+				fprintf(stderr,
+					"Error parsing \"%s\" as a number\n",
+					optarg);
+				vrrp_usage();
+				return err;
+			}
+
+			vrrp->start_delay = (uint16_t) opt;
 			break;
 
 			/* preempt mode */

@@ -332,7 +332,15 @@ static int vrrp_state_goto_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
 
 	/* clear adv timer && set masterdown_timer */
 	vrrp_timer_clear(&vrrp->adv_timer);
-	VRRP_SET_MASTERDOWN_TIMER(vrrp);
+	if ((previous_state == INIT) && (vrrp->start_delay != 0)) {
+		log_notice("vrid %d :: applying start_delay %d%s", 
+			   vrrp->vrid, vrrp->start_delay,
+			   (vrrp->version == 3 ? "cs":"s")
+			   );
+		VRRP_SET_STARTDELAY_TIMER(vrrp);
+	}
+	else
+		VRRP_SET_MASTERDOWN_TIMER(vrrp);
 
 	log_debug("%d %d", vrrp->master_adv_int,
 		  3 * vrrp->master_adv_int + SKEW_TIME(vrrp));

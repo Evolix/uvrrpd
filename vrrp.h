@@ -94,6 +94,9 @@ struct vrrp {
 	 */
 	uint16_t adv_int;
 
+	/* Start delay */
+	uint16_t start_delay;
+
 	/* Master advertisement interval
 	 * only in VRRPv3 / rfc5798
 	 */

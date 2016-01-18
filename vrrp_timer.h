@@ -70,5 +70,9 @@ int vrrp_timer_is_expired(struct vrrp_timer *timer);
             (v->version == 3 ? 0:SKEW_TIME( v )),       \
             (v->version == 3 ? SKEW_TIME( v ):0))
 
+#define VRRP_SET_STARTDELAY_TIMER( v )			\
+    vrrp_timer_set(&v->masterdown_timer,		\
+	    (v->version == 3 ? 0:v->start_delay),	\
+            (v->version == 3 ? v->start_delay:0))
 
 #endif /* _VRRP_TIMER_H_ */

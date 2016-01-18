@@ -60,6 +60,9 @@ Optional arguments:
   -t, --time delay          Time interval between advertisements
                             Seconds in VRRPv2 (default 1s),
                             Centiseconds in VRRPv3 (default 100cs)
+  -T, --start-delay delay   Use custom delay in INIT state
+                            Seconds in VRRPv2 (default 1s),
+                            Centiseconds in VRRPv3 (default 100cs)
   -P, --preempt on|off      Switch preempt (default on)
   -r, --rfc version         Specify protocol 'version'
                             2 (VRRPv2, RFC3768) by default,
@@ -67,9 +70,11 @@ Optional arguments:
   -6, --ipv6                IPv6 support, (only in VRRPv3)
   -a, --auth pass           Simple text password (only in VRRPv2)
   -f, --foreground          Execute uvrrpd in foreground
-  -s, --script              Path of hook script (default /etc/uvrrpd/uvrrpd-switch.sh)
-  -F  --pidfile		    Create pid file 'name'
-                            Default /var/run/uvrrp_${vrid}.pid
+  -s, --script              Path of hook script (default /usr/local/sbin/vrrp-switch.sh)
+  -F  --pidfile name        Use alternate pid file 'name'
+                            Default /run/uvrrp_${vrid}.pid
+  -C  --control name        Use alternate control file 'name'
+                            Default /run/uvrrpd_ctrl.${vrid}
   -d, --debug
   -h, --help
 ```

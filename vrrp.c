@@ -63,6 +63,7 @@ void vrrp_init(struct vrrp *vrrp)
 
 	/* timers */
 	vrrp->adv_int = 0;
+	vrrp->start_delay = 0;
 	vrrp->master_adv_int = 0;
 	vrrp_timer_clear(&vrrp->adv_timer);
 	vrrp_timer_clear(&vrrp->masterdown_timer);
