@@ -17,6 +17,7 @@ noinst_HEADERS =				\
 	uvrrpd.h				\
 	vrrp_adv.h				\
 	vrrp_arp.h				\
+	vrrp_ctrl.h				\
 	vrrp_exec.h				\
 	vrrp.h					\
 	vrrp_ipx.h				\
@@ -32,6 +33,7 @@ uvrrpd_SOURCES =				\
 	uvrrpd.c				\
 	vrrp_adv.c				\
 	vrrp_arp.c				\
+	vrrp_ctrl.c				\
 	vrrp.c					\
 	vrrp_exec.c				\
 	vrrp_ip4.c				\

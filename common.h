@@ -76,6 +76,11 @@ typedef enum {
 })
 
 /**
+ * WHITESPACE
+ */
+#define WHITESPACE 	" \f\r\t\n\v"
+
+/**
  * cksum - compute IP checksum 
  */
 static inline int unsigned short cksum(unsigned short *buf, int nbytes)
