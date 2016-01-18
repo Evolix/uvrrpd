@@ -79,6 +79,16 @@ Optional arguments:
 * `SIGHUP` : force uvrrpd to switch to init state
 * `SIGUSR1`|`SIGUSR2` : dump VRRP instance informations
 
+### Control fifo
+
+User can send command through a control FIFO, by default in /var/run/uvrrpd_ctrl.${vrid}
+
+Commands available:
+* reload (force init state)
+* stop (exit)
+* state || status (dump vrrp status)
+* prio X (change priority while running, and switch to init state)
+
 ### Log
 
 LOG_DAEMON facility

@@ -60,9 +60,9 @@ static void vrrp_usage(void)
 		"  -a, --auth pass           Simple text password (only in VRRPv2)\n"
 		"  -f, --foreground          Execute uvrrpd in foreground\n"
 		"  -s, --script              Path of hook script (default "stringify(PATH)"/vrrp-switch.sh)\n"
-		"  -F  --pidfile name        Change pid file 'name'\n"
+		"  -F  --pidfile name        Use alternate pid file 'name'\n"
 		"                            Default "stringify(PATHRUN)"/uvrrp_${vrid}.pid\n"
-		"  -C  --control name        Change control file 'name'\n"
+		"  -C  --control name        Use alternate control file 'name'\n"
 		"                            Default "stringify(PATHRUN)"/uvrrpd_ctrl.${vrid}\n"
 		"  -d, --debug\n" "  -h, --help\n");
 }
