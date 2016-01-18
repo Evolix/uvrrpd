@@ -76,6 +76,7 @@ static void vrrp_context(struct vrrp *vrrp)
 	log_notice("====================");
 	log_notice("VRID          %d", vrrp->vrid);
 	log_notice("current_state %s", STR_STATE(vrrp->state));
+	log_notice("priority      %d", vrrp->priority);
 	log_notice("adv_int       %d", vrrp->adv_int);
 	if (vrrp->version == RFC5798)
 		log_notice("master_adv_int      %d", vrrp->master_adv_int);
