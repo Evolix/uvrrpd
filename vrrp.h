@@ -29,6 +29,7 @@
 #include "vrrp_net.h"
 #include "vrrp_timer.h"
 #include "vrrp_state.h"
+#include "vrrp_ctrl.h"
 
 /* MAX values */
 #define VRID_MAX        255
@@ -114,9 +115,23 @@ struct vrrp {
 	struct vrrp_timer masterdown_timer;
 };
 
+/**
+ * enum vrrp_ret - Return code used in vrrp_net_listen
+ */
+enum _vrrp_event_type {
+	VRID_MISMATCH = -2,	/* vrid mismatch */
+	INVALID = -1,           /* invalid pkt */
+	PKT,			/* valid packet */
+	SIGNAL,			/* signal catch */
+	CTRL_FIFO,		/* ctrl cmd event */
+	TIMER			/* timer expired */
+};
+
+typedef enum _vrrp_event_type vrrp_event_t;
 /* funcs */
 void vrrp_init(struct vrrp *vrrp);
 void vrrp_cleanup(struct vrrp *vrrp);
 int vrrp_process(struct vrrp *vrrp, struct vrrp_net *vnet);
+vrrp_event_t vrrp_listen(struct vrrp *vrrp, struct vrrp_net *vnet);
 
 #endif /* _VRRP_H_ */

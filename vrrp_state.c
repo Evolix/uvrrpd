@@ -68,7 +68,7 @@ int vrrp_state_init(struct vrrp *vrrp, struct vrrp_net *vnet)
  */
 int vrrp_state_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
 {
-	int event = vrrp_net_listen(vnet, vrrp);
+	int event = vrrp_listen(vrrp, vnet);
 	char straddr[INET6_ADDRSTRLEN];
 
 	switch (event) {
@@ -134,7 +134,7 @@ int vrrp_state_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
 
 	case SIGNAL:
 		log_debug("vrid %d :: signal", vrrp->vrid);
-
+	case CTRL_FIFO:
 		/* shutdown/reload event ? */
 		if (test_and_clear_bit(UVRRPD_RELOAD, &reg)) {
 			vrrp_timer_clear(&vrrp->masterdown_timer);
@@ -168,7 +168,7 @@ int vrrp_state_backup(struct vrrp *vrrp, struct vrrp_net *vnet)
  */
 int vrrp_state_master(struct vrrp *vrrp, struct vrrp_net *vnet)
 {
-	int event = vrrp_net_listen(vnet, vrrp);
+	int event = vrrp_listen(vrrp, vnet);
 
 	switch (event) {
 	case TIMER:	/* TIMER expired */
@@ -245,6 +245,7 @@ int vrrp_state_master(struct vrrp *vrrp, struct vrrp_net *vnet)
 
 	case SIGNAL:
 		log_debug("vrid %d :: signal", vrrp->vrid);
+	case CTRL_FIFO:
 
 		/* shutdown/reload event ? */
 		if (test_and_clear_bit(UVRRPD_RELOAD, &reg)) {

@@ -49,6 +49,20 @@ static inline int vrrp_adv_get_priority(const struct vrrp_net *vnet)
 }
 
 /**
+ * vrrp_adv_set_priority() - set priority in emitted adv pkt
+ */
+static inline void vrrp_adv_set_priority(struct vrrp_net *vnet, uint8_t prio)
+{
+	struct vrrphdr *pkt = vnet->__adv[2].iov_base;
+	pkt->priority = prio;
+
+	/* recompute chksum */
+	pkt->chksum = vnet->adv_checksum(vnet, pkt, NULL, NULL);
+
+	log_notice("vrid %d :: new prio %d applied", vnet->vrid, pkt->priority);
+}
+
+/**
  * vrrp_adv_addr_to_str() - return source ip from received adv pkt
  * 		            in string format
  */
