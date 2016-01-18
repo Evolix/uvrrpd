@@ -33,6 +33,7 @@
 #include "vrrp_na.h"
 #include "vrrp_options.h"
 #include "vrrp_exec.h"
+#include "vrrp_ctrl.h"
 
 #include "log.h"
 
@@ -88,6 +89,8 @@ int main(int argc, char *argv[])
 	/* init and open control file fifo */
 	ctrlfile_init(vrrp.vrid);
 	ctrlfile(vrrp.vrid, &vrrp.ctrl.fd);
+	if (vrrp_ctrl_init(&vrrp.ctrl) != 0)
+		exit(EXIT_FAILURE);
 
 	/* open sockets */
 	if ((vrrp_net_socket(&vnet) != 0) || (vrrp_net_socket_xmit(&vnet) != 0))
@@ -136,6 +139,7 @@ int main(int argc, char *argv[])
 
 	vrrp_cleanup(&vrrp);
 	vrrp_exec_cleanup(&vrrp);
+	vrrp_ctrl_cleanup(&vrrp.ctrl);
 	vrrp_net_cleanup(&vnet);
 
 	log_close();
