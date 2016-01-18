@@ -60,9 +60,10 @@ Optional arguments:
   -t, --time delay          Time interval between advertisements
                             Seconds in VRRPv2 (default 1s),
                             Centiseconds in VRRPv3 (default 100cs)
-  -T, --start-delay delay   Use custom delay in INIT state
-                            Seconds in VRRPv2 (default 1s),
-                            Centiseconds in VRRPv3 (default 100cs)
+  -T, --start-delay delay   Use custom delay in INIT state, override masterdown
+                            timer
+                            Seconds in VRRPv2 (default 0s),
+                            Centiseconds in VRRPv3 (default 0cs)
   -P, --preempt on|off      Switch preempt (default on)
   -r, --rfc version         Specify protocol 'version'
                             2 (VRRPv2, RFC3768) by default,
@@ -70,7 +71,7 @@ Optional arguments:
   -6, --ipv6                IPv6 support, (only in VRRPv3)
   -a, --auth pass           Simple text password (only in VRRPv2)
   -f, --foreground          Execute uvrrpd in foreground
-  -s, --script              Path of hook script (default /usr/local/sbin/vrrp-switch.sh)
+  -s, --script              Path of hook script (default /usr/local/sbin/vrrp_switch.sh)
   -F  --pidfile name        Use alternate pid file 'name'
                             Default /run/uvrrp_${vrid}.pid
   -C  --control name        Use alternate control file 'name'
@@ -94,6 +95,20 @@ Commands available:
 * state || status (dump vrrp status)
 * prio X (change priority while running, and switch to init state)
 
+```bash
+# ./uvrrpd -v 42 -i eth0 10.0.0.254
+# echo "prio 90" > /var/run/uvrrpd_ctrl.42
+#
+# tail -10 /var/log/daemon.log
+[...]
+uvrrpd[27820]: vrid 42 :: new prio 90 applied                 
+uvrrpd[27820]: vrid 42 :: init                                
+uvrrpd[27820]: vrid 42 :: init -> backup                      
+uvrrpd[27820]: vrid 42 :: masterdown_timer expired            
+[...]
+#
+```
+
 ### Log
 
 LOG_DAEMON facility
@@ -105,10 +120,10 @@ LOG_DAEMON facility
 *uvrrpd must be run as root.*
 
 * Start a VRRP instance on eth0 interface with VRID 42, default priority (100), 
-with *vrrp_switch.sh* in */usr/share/uvrrpd* directory (arbitrary choice).
+with *vrrp_switch.sh* in */usr/local/sbin/* directory.
 
 ```bash
-# ./uvrrpd -v 42 -i eth0 -s /usr/share/uvrrpd/vrrp_switch.sh 10.0.0.254
+# ./uvrrpd -v 42 -i eth0 -s /usr/local/sbin/vrrp_switch.sh 10.0.0.254
 #
 ```
 
@@ -143,10 +158,10 @@ See logs :
 ```bash
 # tail -f /var/log/daemon.log
 [...]
-Sep 12 09:04:55 debian uvrrpd[2966]: vrid 42 :: init
-Sep 12 09:04:55 debian uvrrpd[2966]: vrid 42 :: init -> backup
-Sep 12 09:04:58 debian uvrrpd[2966]: vrid 42 :: masterdown_timer expired
-Sep 12 09:04:58 debian uvrrpd[2966]: vrid 42 :: backup -> master
+uvrrpd[2966]: vrid 42 :: init
+uvrrpd[2966]: vrid 42 :: init -> backup
+uvrrpd[2966]: vrid 42 :: masterdown_timer expired
+uvrrpd[2966]: vrid 42 :: backup -> master
 ```
 
 and /tmp/state.vrrp_42_eth0 : 
@@ -178,10 +193,9 @@ You can start an another VRRP instance on another GNU/Linux box or a router with
 
 ## TODOs
 
-* make more tests
-* add features like interface monitoring...
-* init scripts
+* more tests
 * packaging
+* ...
 
 Any suggestions, ideas, patches or whatever are welcome and will be greatly
 appreciated !
