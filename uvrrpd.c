@@ -300,7 +300,7 @@ static void pidfile(int vrid)
 	fd = open(pidfile_name,
 		  O_WRONLY | O_CREAT | O_CLOEXEC, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		log_error("vrid %d :: error opening PID file %s: %m\n", vrid,
+		log_error("vrid %d :: error opening PID file %s: %m", vrid,
 			  pidfile_name);
 		exit(EXIT_FAILURE);
 	}
@@ -313,11 +313,11 @@ static void pidfile(int vrid)
 	err = fcntl(fd, F_SETLK, &fl);
 	if (err < 0) {
 		if (errno == EACCES || errno == EAGAIN) {
-			log_error("vrid %d :: uvrrpd is already running\n",
+			log_error("vrid %d :: uvrrpd is already running",
 				  vrid);
 			exit(EXIT_FAILURE);
 		}
-		log_error("vrid %d :: error setting PID file %s lock: %m\n",
+		log_error("vrid %d :: error setting PID file %s lock: %m",
 			  vrid, pidfile_name);
 		exit(EXIT_FAILURE);
 	}
@@ -332,7 +332,7 @@ static void pidfile(int vrid)
 
 	err = write(fd, buf, err);
 	if (err < 0) {
-		log_error("vrid %d :: error writing PID to PID file %s: %m\n",
+		log_error("vrid %d :: error writing PID to PID file %s: %m",
 			  vrid, pidfile_name);
 		exit(EXIT_FAILURE);
 	}
