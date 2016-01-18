@@ -25,6 +25,7 @@
 #include "bits.h"
 
 #define PIDFILE_NAME	stringify(PATHRUN) "/uvrrpd_%d.pid"
+#define CTRLFILE_NAME	stringify(PATHRUN) "/uvrrpd_ctrl.%d"
 
 /** 
  * uvrrpd_control

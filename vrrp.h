@@ -107,6 +107,9 @@ struct vrrp {
 	char *scriptname;
 	char **argv;
 
+	/* control cmd fifo */
+	struct vrrp_ctrl ctrl;
+
 	struct vrrp_timer adv_timer;
 	struct vrrp_timer masterdown_timer;
 };

@@ -41,6 +41,7 @@ unsigned long reg = 0UL;
 int background = 1;
 char *loglevel = NULL;
 char *pidfile_name = NULL;
+char *ctrlfile_name = NULL;
 
 /* local methods */
 static void signal_handler(int sig);
@@ -49,6 +50,9 @@ static int pidfile_init(int vrid);
 static void pidfile_unlink(void);
 static void pidfile_check(int vrid);
 static void pidfile(int vrid);
+static int ctrlfile_init(int vrid);
+static void ctrlfile_unlink(void);
+static void ctrlfile(int vrid, int *fd);
 
 /**
  * main() - entry point
@@ -80,6 +84,10 @@ int main(int argc, char *argv[])
 
 	/* logs */
 	log_open("uvrrpd", (char const *) loglevel);
+
+	/* init and open control file fifo */
+	ctrlfile_init(vrrp.vrid);
+	ctrlfile(vrrp.vrid, &vrrp.ctrl.fd);
 
 	/* open sockets */
 	if ((vrrp_net_socket(&vnet) != 0) || (vrrp_net_socket_xmit(&vnet) != 0))
@@ -133,6 +141,7 @@ int main(int argc, char *argv[])
 	log_close();
 	free(loglevel);
 	pidfile_unlink();
+	ctrlfile_unlink();
 	free(pidfile_name);
 
 	return EXIT_SUCCESS;
@@ -334,6 +343,62 @@ static void pidfile(int vrid)
 	if (err < 0) {
 		log_error("vrid %d :: error writing PID to PID file %s: %m",
 			  vrid, pidfile_name);
+		exit(EXIT_FAILURE);
+	}
+}
+
+
+/**
+ * ctrlfile_init()
+ */
+static int ctrlfile_init(int vrid)
+{
+	int max_len = NAME_MAX + PATH_MAX;
+	if (ctrlfile_name == NULL) {
+		ctrlfile_name = malloc(max_len);
+		if (ctrlfile_name == NULL) {
+			log_error("vrid %d :: malloc - %m", vrid);
+			return -1;
+		}
+
+		snprintf(ctrlfile_name, max_len, CTRLFILE_NAME, vrid);
+	}
+
+	return 0;
+}
+
+/**
+ * ctrlfile_unlink()
+ */
+static void ctrlfile_unlink()
+{
+	if (ctrlfile_name)
+		unlink(ctrlfile_name);
+}
+
+/**
+ * ctrlfile()
+ */
+static void ctrlfile(int vrid, int *fd)
+{
+	if (fd == NULL) {
+		log_error("vrid %d :: invalid use of ctrlfile(), fd NULL", vrid);
+		exit(EXIT_FAILURE);
+	}
+
+	ctrlfile_unlink();
+	if (mkfifo(ctrlfile_name, 0600) != 0) {
+		log_error("vrid %d :: error while creating control fifo %s: %m", vrid,
+			  ctrlfile_name);
+		exit(EXIT_FAILURE);
+	}
+
+	atexit(ctrlfile_unlink);
+
+	*fd = open(ctrlfile_name, O_RDWR | O_NONBLOCK);
+	if (*fd == -1) {
+		log_error("vrid %d :: error while opening control fifo %s: %m", vrid,
+			  ctrlfile_name);
 		exit(EXIT_FAILURE);
 	}
 }
