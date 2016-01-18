@@ -32,16 +32,13 @@
 /* ifreq + ioctl */
 #include <sys/ioctl.h>
 #include <net/if.h>
-/* pselect() */
-#include <sys/select.h>
-#include <signal.h>
+
 #include <sys/types.h>
 #include <ifaddrs.h>
 #include <netdb.h>	/* NI_MAXHOST */
 
 #include "vrrp.h"
 #include "vrrp_net.h"
-#include "vrrp_timer.h"
 #include "vrrp_adv.h"
 
 #include "common.h"
@@ -249,80 +246,6 @@ int vrrp_net_vip_set(struct vrrp_net *vnet, const char *ip)
 	return 0;
 }
 
-/**
- * vrrp_net_listen() - Wait for a VRRP pkt on vnet->socket
- *
- * @return vrrp_event_t
- *   TIMER if current timer is expired
- *   another event else
- */
-vrrp_event_t vrrp_net_listen(struct vrrp_net *vnet, struct vrrp *vrrp)
-{
-	struct vrrp_timer *vt;
-
-	/* Check which timer is running
-	 * Advertisement timer or Masterdown timer ? 
-	 */
-	if (vrrp_timer_is_running(&vrrp->adv_timer)) {
-		log_debug("vrid %d :: adv_timer is running", vrrp->vrid);
-		vt = &vrrp->adv_timer;
-	}
-	else if (vrrp_timer_is_running(&vrrp->masterdown_timer)) {
-		log_debug("vrid %d :: masterdown_timer is running", vrrp->vrid);
-		vt = &vrrp->masterdown_timer;
-	}
-	else {	/* No timer ? ... exit */
-		log_error("vrid %d :: no timer running !", vrrp->vrid);
-		/* TODO die() */
-		exit(EXIT_FAILURE);
-	}
-
-	/* update timer before pselect() */
-	if (vrrp_timer_update(vt)) {
-		log_debug("vrid %d :: timer expired before pselect",
-			  vrrp->vrid);
-		/* timer expired or invalid */
-		return TIMER;
-	}
-
-	/* pselect */
-	fd_set readfds;
-	FD_ZERO(&readfds);
-	FD_SET(vnet->socket, &readfds);
-
-	sigset_t emptyset;
-	sigemptyset(&emptyset);
-
-	/* Wait for packet or timer expiration */
-	if (pselect
-	    (vnet->socket + 1, &readfds, NULL, NULL,
-	     (const struct timespec *) &vt->delta, &emptyset) >= 0) {
-
-
-		/* Timer is expired */
-		if (vrrp_timer_is_expired(vt)) {
-			log_debug("vrid %d :: timer expired", vrrp->vrid);
-			return TIMER;
-		}
-
-		/* Else we have received a pkt */
-		log_debug("vrid %d :: VRRP pkt received", vrrp->vrid);
-
-		/* check if received is valid or not */
-		return vrrp_net_recv(vnet, vrrp);
-	}
-	else {	/* Signal or pselect error */
-		if (errno == EINTR) {
-			log_debug("vrid %d :: signal caught", vrrp->vrid);
-
-			return SIGNAL;
-		}
-
-		log_error("vrid %d :: pselect - %m", vrrp->vrid);
-	}
-
-	return INVALID;
-}
 
 /**
  * vrrp_net_invalidate_buffer() 

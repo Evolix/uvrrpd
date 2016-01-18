@@ -26,10 +26,11 @@
 
 /* from vrrp.h */
 struct vrrp;
+struct vrrp_net;
 typedef enum _vrrp_event_type vrrp_event_t;
 
 #define CTRL_MAXCHAR 		64
-#define CTRL_CMD_TOKENS		3
+#define CTRL_CMD_NTOKEN		3
 
 /**
  * vrrp_ctrl - infos about control fifo
@@ -49,7 +50,7 @@ struct vrrp_ctrl {
 
 int vrrp_ctrl_init(struct vrrp_ctrl *ctrl);
 void vrrp_ctrl_cleanup(struct vrrp_ctrl *ctrl);
-vrrp_event_t vrrp_ctrl_read(struct vrrp *vrrp);
+vrrp_event_t vrrp_ctrl_read(struct vrrp *vrrp, struct vrrp_net *vnet);
 
 
 #endif /* _VRRP_CTRL_H_ */

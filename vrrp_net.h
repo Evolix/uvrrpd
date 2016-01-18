@@ -39,6 +39,7 @@
 
 /* from vrrp.h */
 struct vrrp;
+typedef enum _vrrp_event_type vrrp_event_t;
 
 /**
  * constants
@@ -136,18 +137,6 @@ struct vrrp_net {
 #define ipx_to_str   ipx_helper->ipx_ntop
 #define str_to_ipx   ipx_helper->ipx_pton
 
-/**
- * enum vrrp_ret - Return code used in vrrp_net_listen
- */
-enum _vrrp_event_type {
-	VRID_MISMATCH = -2,	/* vrid mismatch */
-	INVALID = -1,           /* invalid pkt */
-	PKT,			/* valid packet */
-	SIGNAL,			/* signal catch */
-	TIMER			/* timer expired */
-};
-
-typedef enum _vrrp_event_type vrrp_event_t;
 
 /*
  * funcs
@@ -159,7 +148,6 @@ int vrrp_net_socket_xmit(struct vrrp_net *vnet);
 int vrrp_net_vif_getaddr(struct vrrp_net *vnet);
 int vrrp_net_vif_mtu(struct vrrp_net *vnet);
 int vrrp_net_vip_set(struct vrrp_net *vnet, const char *ip);
-vrrp_event_t vrrp_net_listen(struct vrrp_net *vnet, struct vrrp *vrrp);
 vrrp_event_t vrrp_net_recv(struct vrrp_net *vnet, const struct vrrp *vrrp);
 int vrrp_net_send(const struct vrrp_net *vnet, struct iovec *iov, size_t len);
 
