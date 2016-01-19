@@ -143,7 +143,6 @@ static inline vrrp_event_t vrrp_ctrl_cmd(struct vrrp *vrrp,
 	if (nword == 0)
 		return INVALID;
 
-
 	/* 
 	 * control cmd stop 
 	 */
@@ -172,6 +171,7 @@ static inline vrrp_event_t vrrp_ctrl_cmd(struct vrrp *vrrp,
 
 		set_bit(UVRRPD_DUMP, &reg);
 		vrrp_ctrl_cmd_flush(&vrrp->ctrl);
+		return CTRL_FIFO;
 	}
 
 	/* 
@@ -182,6 +182,8 @@ static inline vrrp_event_t vrrp_ctrl_cmd(struct vrrp *vrrp,
 			log_error
 			    ("vrid %d :: invalid syntax, control cmd prio <priority>",
 			     vrrp->vrid);
+
+			vrrp_ctrl_cmd_flush(&vrrp->ctrl);
 			return INVALID;
 		}
 
@@ -206,16 +208,19 @@ static inline vrrp_event_t vrrp_ctrl_cmd(struct vrrp *vrrp,
 			return INVALID;
 		}
 
-		vrrp->priority = (uint8_t) opt;
-
 		/* change prio */
-		vrrp_adv_set_priority(vnet, vrrp->priority);
+		if (vrrp->priority != (uint8_t) opt) {
+			vrrp->priority = (uint8_t) opt;
+			vrrp_adv_set_priority(vnet, vrrp->priority);
+		}
 
 		/* reload bit */
 		set_bit(UVRRPD_RELOAD, &reg);
 
 		return CTRL_FIFO;
 	}
+
+	vrrp_ctrl_cmd_flush(&vrrp->ctrl);
 
 	return INVALID;
 }
