@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/file.h>
+#include <sys/mman.h>
 
 #include "uvrrpd.h"
 #include "vrrp.h"
@@ -125,6 +126,9 @@ int main(int argc, char *argv[])
 	/* pidfile */
 	pidfile(vrrp.vrid);
 
+	/* lock procress's virtual address space into RAM */
+	mlockall(MCL_CURRENT | MCL_FUTURE);
+
 	/* process */
 	set_bit(KEEP_GOING, &reg);
 	while (test_bit(KEEP_GOING, &reg) && !vrrp_process(&vrrp, &vnet));
@@ -147,6 +151,8 @@ int main(int argc, char *argv[])
 	pidfile_unlink();
 	ctrlfile_unlink();
 	free(pidfile_name);
+
+	munlockall();
 
 	return EXIT_SUCCESS;
 }
