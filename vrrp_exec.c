@@ -31,6 +31,7 @@
 
 #include "vrrp.h"
 #include "vrrp_exec.h"
+#include "uvrrpd.h"
 #include "common.h"
 #include "log.h"
 
@@ -137,6 +138,7 @@ int vrrp_exec(struct vrrp *vrrp, const struct vrrp_net *vnet, vrrp_state state)
 	sigaction(SIGQUIT, &sa_ignore, &sa_origquit);
 
 	/* fork */
+	uvrrpd_sched_unset(); /* remove SCHED_RR */
 	pid_t child = fork();
 	int status, savedErrno;
 
@@ -167,7 +169,8 @@ int vrrp_exec(struct vrrp *vrrp, const struct vrrp_net *vnet, vrrp_state state)
 
 	/* parent */
 	if (child > 0) {
-
+		
+		uvrrpd_sched_set(); /* restore SCHED_RR */
 		while (waitpid(child, &status, 0) == -1) {
 			if (errno != EINTR) {	/* Error other than EINTR */
 				log_error("vrid %d :: waitpid - %m", vrrp->vrid);

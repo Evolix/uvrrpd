@@ -42,4 +42,7 @@ enum uvrrpd_control {
 	UVRRPD_RELOAD = BIT_MASK(3),
 };
 
+int uvrrpd_sched_set(void);
+int uvrrpd_sched_unset(void);
+
 #endif /* _UVRRPD_ */

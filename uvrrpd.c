@@ -25,6 +25,11 @@
 #include <signal.h>
 #include <sys/file.h>
 #include <sys/mman.h>
+#ifdef _POSIX_PRIORITY_SCHEDULING
+  #include <sched.h>
+#else
+  #warning "no sched rt"
+#endif
 
 #include "uvrrpd.h"
 #include "vrrp.h"
@@ -128,6 +133,8 @@ int main(int argc, char *argv[])
 
 	/* lock procress's virtual address space into RAM */
 	mlockall(MCL_CURRENT | MCL_FUTURE);
+	/* set SCHED_RR */
+	uvrrpd_sched_set();
 
 	/* process */
 	set_bit(KEEP_GOING, &reg);
@@ -411,4 +418,41 @@ static void ctrlfile(int vrid, int *fd)
 			  ctrlfile_name);
 		exit(EXIT_FAILURE);
 	}
+}
+
+/**
+ * uvrrpd_sched_set() - set SCHED_RR scheduler
+ */
+int uvrrpd_sched_set()
+{
+#ifdef _POSIX_PRIORITY_SCHEDULING
+	struct sched_param param;
+
+	param.sched_priority = sched_get_priority_max(SCHED_RR);
+	if (sched_setscheduler(0, SCHED_RR, &param) != 0) {
+		log_error("sched_setscheduler() - %m");
+		return -1;
+	}
+#else
+	nice(-20);
+#endif
+
+	return 0;
+}
+
+/**
+ * uvrrpd_sched_unset() - unset SCHED_RR scheduler
+ */
+int uvrrpd_sched_unset()
+{
+#ifdef _POSIX_PRIORITY_SCHEDULING
+	struct sched_param param;
+
+	param.sched_priority = sched_get_priority_max(SCHED_OTHER);
+	if (sched_setscheduler(0, SCHED_OTHER, &param) != 0) {
+		log_error("sched_setscheduler() - %m");
+		return -1;
+	}
+#endif
+	return 0;
 }
