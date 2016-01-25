@@ -286,13 +286,14 @@ static int vrrp_state_goto_master(struct vrrp *vrrp, struct vrrp_net *vnet)
 
 	vrrp->state = MASTER;
 
-	/* IPv4 specific */
 	vrrp_adv_send(vnet);
 
 	if (vnet->family == AF_INET)
 		vrrp_arp_send(vnet);
+#ifdef HAVE_IP6
 	else if (vnet->family == AF_INET6)
 		vrrp_na_send(vnet);
+#endif /* HAVE_IP6 */
 
 	/* script */
 	vrrp_exec(vrrp, vnet, vrrp->state);

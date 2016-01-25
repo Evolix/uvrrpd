@@ -21,6 +21,8 @@
  * along with uvrrpd.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_IP6
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -239,3 +241,5 @@ void vrrp_na_cleanup(struct vrrp_net *vnet)
 
 	}
 }
+
+#endif /* HAVE_IP6 */

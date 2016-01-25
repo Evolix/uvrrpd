@@ -60,7 +60,9 @@ static void vrrp_usage(void)
 		"  -r, --rfc version         Specify protocol 'version'\n"
 		"                            2 (VRRPv2, RFC3768) by default,\n"
 		"                            3 (VRRPv3, RFC5798)\n"
+#ifdef HAVE_IP6
 		"  -6, --ipv6                IPv6 support, (only in VRRPv3)\n"
+#endif /* HAVE_IP6 */
 		"  -a, --auth pass           Simple text password (only in VRRPv2)\n"
 		"  -f, --foreground          Execute uvrrpd in foreground\n"
 		"  -s, --script              Path of hook script (default "stringify(PATH)"/vrrp_switch.sh)\n"
@@ -88,7 +90,9 @@ int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 		{"start-delay", required_argument, 0, 'T'},
 		{"preempt", required_argument, 0, 'P'},
 		{"rfc", required_argument, 0, 'r'},
+#ifdef HAVE_IP6
 		{"ipv6", no_argument, 0, '6'},
+#endif /* HAVE_IP6 */
 		{"auth", required_argument, 0, 'a'},
 		{"foreground", no_argument, 0, 'f'},
 		{"script", required_argument, 0, 's'},
@@ -100,7 +104,14 @@ int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 	};
 
 	while ((optc =
-		getopt_long(argc, argv, "v:i:p:t:T:P:r:6a:fs:F:C:dh", opts,
+		getopt_long(argc, argv, 
+#ifdef HAVE_IP6
+			    "v:i:p:t:T:P:r:6a:fs:F:C:dh", 
+#else 
+			    "v:i:p:t:T:P:r:a:fs:F:C:dh", 
+#endif /* HAVE_IP6 */			    
+			    opts,
+
 			    NULL)) != EOF) {
 		switch (optc) {
 
@@ -220,11 +231,13 @@ int vrrp_options(struct vrrp *vrrp, struct vrrp_net *vnet, int argc,
 			vrrp->version = (uint8_t) opt;
 			break;
 
+#ifdef HAVE_IP6
 			/* IPv6 */
 		case '6':	/* Force RFC5798/VRRPv3 */
 			vrrp->version = RFC5798;
 			vnet->family = AF_INET6;
 			break;
+#endif /* HAVE_IP6 */
 
 			/* auth */
 		case 'a':	/* only SIMPLE password supported */

@@ -87,11 +87,14 @@ struct vrrp_recv {
 };
 
 #define ip_addr   ipx.addr
-#define ip_addr6  ipx.addr6
 #define ip_saddr  s_ipx.addr
 #define ip_daddr  d_ipx.addr
+
+#ifdef HAVE_IP6
+#define ip_addr6  ipx.addr6
 #define ip_saddr6 s_ipx.addr6
 #define ip_daddr6 d_ipx.addr6
+#endif /* HAVE_IP6 */
 
 /**
  * struct vrrp_net - VRRP net structure

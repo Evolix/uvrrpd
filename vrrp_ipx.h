@@ -43,7 +43,9 @@ struct vrrp_ipx_header {
  */
 union vrrp_ipx_addr {
 	struct in_addr addr;
+#ifdef HAVE_IP6
 	struct in6_addr addr6;
+#endif
 };
 
 /**
@@ -86,7 +88,9 @@ struct vrrp_ipx {
 
 /* IP4 and IP6 internal modules */
 extern struct vrrp_ipx VRRP_IP4;	/* IPv4 module */
+#ifdef HAVE_IP6
 extern struct vrrp_ipx VRRP_IP6;	/* IPv6 module */
+#endif
 
 /**
  * vrrp_ipx_set() - Set l3 helper for vrrp_net 
@@ -96,10 +100,11 @@ static inline struct vrrp_ipx *vrrp_ipx_set(int family)
 	if (family == AF_INET) {
 		return &VRRP_IP4;
 	}
+#ifdef HAVE_IP6
 	if (family == AF_INET6) {
 		return &VRRP_IP6;
 	}
-
+#endif
 	return NULL;
 }
 

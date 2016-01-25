@@ -19,6 +19,8 @@
  * along with uvrrpd.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_IP6
+
 #ifndef _VRRP_NA_H_
 #define _VRRP_NA_H_
 
@@ -27,3 +29,5 @@ void vrrp_na_cleanup(struct vrrp_net *vnet);
 int vrrp_na_send(struct vrrp_net *vnet);
 
 #endif /* _VRRP_NA_H_ */
+
+#endif /* HAVE_IP6 */

@@ -36,7 +36,9 @@
 #include "vrrp_net.h"
 #include "vrrp_adv.h"
 #include "vrrp_arp.h"
+#ifdef HAVE_IP6
 #include "vrrp_na.h"
+#endif
 #include "vrrp_options.h"
 #include "vrrp_exec.h"
 #include "vrrp_ctrl.h"
@@ -115,10 +117,12 @@ int main(int argc, char *argv[])
 		if (vrrp_arp_init(&vnet) != 0)
 			exit(EXIT_FAILURE);
 	}
+#ifdef HAVE_IP6
 	else if (vnet.family == AF_INET6) {
 		if (vrrp_na_init(&vnet) != 0)
 			exit(EXIT_FAILURE);
 	}
+#endif
 
 	/* daemonize */
 	if (background) {
@@ -145,8 +149,10 @@ int main(int argc, char *argv[])
 
 	if (vnet.family == AF_INET)
 		vrrp_arp_cleanup(&vnet);
+#ifdef HAVE_IP6
 	else	/* AF_INET6 */
 		vrrp_na_cleanup(&vnet);
+#endif
 
 	vrrp_cleanup(&vrrp);
 	vrrp_exec_cleanup(&vrrp);

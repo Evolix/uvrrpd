@@ -167,12 +167,14 @@ int vrrp_net_vif_getaddr(struct vrrp_net *vnet)
 			    ((struct sockaddr_in *) ifa->ifa_addr)->
 			    sin_addr.s_addr;
 		}
+#ifdef HAVE_IP6
 		else {	/* AF_INET6 */
 			struct sockaddr_in6 *src =
 			    (struct sockaddr_in6 *) ifa->ifa_addr;
 			memcpy(&vnet->vif.ip_addr6, &src->sin6_addr,
 			       sizeof(struct in6_addr));
 		}
+#endif /* HAVE_IP6 */
 	}
 
 	freeifaddrs(ifaddr);
@@ -229,10 +231,12 @@ int vrrp_net_vip_set(struct vrrp_net *vnet, const char *ip)
 		    split_ip_netmask(vnet->family, ip, &vip->ip_addr,
 				     &vip->netmask);
 
+#ifdef HAVE_IP6
 	if (vnet->family == AF_INET6)
 		status =
 		    split_ip_netmask(vnet->family, ip, &vip->ip_addr6,
 				     &vip->netmask);
+#endif /* HAVE_IP6 */
 
 	if (status != 0) {
 		fprintf(stderr, "vrid %d :: invalid IP addr %s", vnet->vrid,

@@ -19,6 +19,7 @@
  * along with uvrrpd.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_IP6
 
 #include <stdio.h>
 #include <string.h>
@@ -341,3 +342,5 @@ struct vrrp_ipx VRRP_IP6 = {
 	.ipx_pton = vrrp_ip6_pton,
 	.ipx_ntop = vrrp_ip6_ntop
 };
+
+#endif /* HAVE_IP6 */

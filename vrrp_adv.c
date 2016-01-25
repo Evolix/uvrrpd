@@ -25,7 +25,9 @@
 #include <linux/if_ether.h>	// ETH_P_IP = 0x0800, ETH_P_IPV6 = 0x86DD
 #include <net/ethernet.h>
 #include <netinet/ip.h>
+#ifdef HAVE_IP6
 #include <netinet/ip6.h>
+#endif
 
 #include "log.h"
 #include "vrrp.h"
@@ -34,7 +36,10 @@
 
 /* VRRP multicast group */
 #define INADDR_VRRP_GROUP   0xe0000012	/* 224.0.0.18 */
+
+#ifdef HAVE_IP6
 #define IN6ADDR_VRRP_GROUP "FF02::12"
+#endif
 
 #define ETHDR_SIZE sizeof(struct ether_header)
 
@@ -76,9 +81,10 @@ static int vrrp_adv_eth_build(struct iovec *iov, const uint8_t vrid,
 	hdr->ether_shost[5] = vrid;
 	if (family == AF_INET)
 		hdr->ether_type = htons(ETH_P_IP);
+#ifdef HAVE_IP6
 	else	/* AF_INET6 */
 		hdr->ether_type = htons(ETH_P_IPV6);
-
+#endif
 	iov->iov_len = ETHDR_SIZE;
 
 	return 0;
@@ -121,6 +127,7 @@ static int vrrp_adv_ip4_build(struct iovec *iov, const struct vrrp_net *vnet)
 /**
  * vrrp_adv_ip6_build() - build VRRP IPv6 advertisement
  */
+#ifdef HAVE_IP6
 static int vrrp_adv_ip6_build(struct iovec *iov, const struct vrrp_net *vnet)
 {
 	iov->iov_base = malloc(sizeof(struct ip6_hdr));
@@ -148,6 +155,7 @@ static int vrrp_adv_ip6_build(struct iovec *iov, const struct vrrp_net *vnet)
 
 	return 0;
 }
+#endif /* HAVE_IP6 */
 
 /**
  * vrrp_net_adv_build() - build VRRP adv pkt
@@ -191,11 +199,13 @@ static int vrrp_adv_build(struct iovec *iov, const struct vrrp_net *vnet,
 			vip_addr[pos] = vip_ptr->ip_addr.s_addr;
 			++pos;
 		}
+#ifdef HAVE_IP6
 		else {	/* AF_INET6 */
 			memcpy(&vip_addr[pos], &vip_ptr->ip_addr6,
 			       sizeof(struct in6_addr));
 			pos += 4;
 		}
+#endif /* HAVE_IP6 */
 		++naddr;
 
 		if (naddr > vrrp->naddr) {
@@ -268,8 +278,10 @@ int vrrp_adv_init(struct vrrp_net *vnet, const struct vrrp *vrrp)
 
 	if (vnet->family == AF_INET)
 		status |= vrrp_adv_ip4_build(&vnet->__adv[1], vnet);
+#ifdef HAVE_IP6
 	else /* AF_INET6 */
 		status |= vrrp_adv_ip6_build(&vnet->__adv[1], vnet);
+#endif /* HAVE_IP6 */
 
 	status |= vrrp_adv_build(&vnet->__adv[2], vnet, vrrp);
 
