@@ -126,11 +126,17 @@ int main(int argc, char *argv[])
 
 	/* daemonize */
 	if (background) {
-		daemon(0, (log_trigger(NULL) > LOG_INFO));
+		if (daemon(0, (log_trigger(NULL) > LOG_INFO)) != 0) {
+			log_error("vrid %d :: daemon - %m", vrrp.vrid);
+			exit(EXIT_FAILURE);
+		}
 	}
-	else
-		chdir("/");
-
+	else {
+		if (chdir("/") != 0) {
+			log_error("vrid %d :: chdir - %m", vrrp.vrid);
+			exit(EXIT_FAILURE);
+		}
+	}
 
 	/* pidfile */
 	pidfile(vrrp.vrid);
