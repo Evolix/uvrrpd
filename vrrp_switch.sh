@@ -42,9 +42,11 @@ case "$state" in
 
         for ip in $ips; do
             ip -$family addr add $ip dev $interface 
-	    sysctl -w net/ipv6/conf/$interface/autoconf=0
-	    sysctl -w net/ipv6/conf/$interface/accept_ra=0
-	    sysctl -w net/ipv6/conf/$interface/forwarding=1
+            if [ $family = 6 ]; then
+	        sysctl -w net/ipv6/conf/$interface/autoconf=0
+	        sysctl -w net/ipv6/conf/$interface/accept_ra=0
+	        sysctl -w net/ipv6/conf/$interface/forwarding=1
+            fi
         done
         ip link set dev $interface up
         
