@@ -49,6 +49,9 @@ int vrrp_state_init(struct vrrp *vrrp, struct vrrp_net *vnet)
 {
 	log_notice("vrid %d :: %s", vrrp->vrid, "init");
 
+	/* Hook init */
+	vrrp_exec(vrrp, vnet, INIT);
+
 	/* init Master_Adver_Interval */
 	vrrp->master_adv_int = vrrp->adv_int;
 	log_debug("%d", vrrp->master_adv_int);
