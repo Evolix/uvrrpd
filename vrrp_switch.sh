@@ -56,7 +56,6 @@ case "$state" in
             ip -$family addr add $ip dev $interface 
         done
         ip link set dev $interface up
-	
 
         IFS=$OIFS
 
