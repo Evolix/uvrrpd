@@ -28,14 +28,14 @@ It provides a network topology update by sending :
 uvrrpd uses the autotools, so to build it from the released tarball, follow the
 usual procedure.
 
-```bash
+```
 ./configure
 make
 sudo make install
 ```
 
 If building from the git sources, run:
-```bash
+```
 autoreconf -i
 ```
 before that.
@@ -46,7 +46,7 @@ to start playing, they are installed in $prefix/sbin, the default prefix being
 
 ## Usage
 
-```bash
+```
 $ ./uvrrpd -h
 Usage: uvrrpd -v vrid -i ifname [OPTIONS] VIP1 [… VIPn]
 
@@ -95,17 +95,17 @@ Commands available:
 * state || status (dump vrrp status)
 * prio X (change priority while running, and switch to init state)
 
-```bash
+```
 # ./uvrrpd -v 42 -i eth0 10.0.0.254
 # echo "prio 90" > /var/run/uvrrpd_ctrl.42
 #
 # tail -10 /var/log/daemon.log
-[...]
+[…]
 uvrrpd[27820]: vrid 42 :: new prio 90 applied                 
 uvrrpd[27820]: vrid 42 :: init                                
 uvrrpd[27820]: vrid 42 :: init -> backup                      
 uvrrpd[27820]: vrid 42 :: masterdown_timer expired            
-[...]
+[…]
 #
 ```
 
@@ -117,21 +117,20 @@ LOG_DAEMON facility
 
 ## Examples
 
-*uvrrpd must be run as root.*
+**uvrrpd must be run as root.**
 
 * Start a VRRP instance on eth0 interface with VRID 42, default priority (100), 
 with *vrrp_switch.sh* in */usr/local/sbin/* directory.
 
-```bash
+```
 # ./uvrrpd -v 42 -i eth0 -s /usr/local/sbin/vrrp_switch.sh 10.0.0.254
-#
 ```
 
 In our example, no other VRRP instance, we are the master and we can see the
 new VRRP interface with the VIP *10.0.0.254* and the virtual VRRP mac address
 *00:00:5e:00:01:2a* :
 
-```bash
+```
 # ifconfig
 eth0      Link encap:Ethernet  HWaddr 52:54:00:4f:48:3f  
           inet addr:10.0.0.1  Bcast:10.0.0.255  Mask:255.255.255.0
@@ -150,14 +149,14 @@ eth0_42   Link encap:Ethernet  HWaddr 00:00:5e:00:01:2a
           TX packets:6 errors:0 dropped:0 overruns:0 carrier:0
           collisions:0 txqueuelen:0 
           RX bytes:3217 (3.1 KiB)  TX bytes:520 (520.0 B)
-[...]
+[…]
 ```
 
 See logs :
 
-```bash
+```
 # tail -f /var/log/daemon.log
-[...]
+[…]
 uvrrpd[2966]: vrid 42 :: init
 uvrrpd[2966]: vrid 42 :: init -> backup
 uvrrpd[2966]: vrid 42 :: masterdown_timer expired
@@ -166,7 +165,7 @@ uvrrpd[2966]: vrid 42 :: backup -> master
 
 and /tmp/state.vrrp_42_eth0 : 
 
-```bash
+```
 # cat /tmp/state.vrrp_42_eth0 
 state           master
 vrid            42
@@ -181,13 +180,13 @@ You can start an another VRRP instance on another GNU/Linux box or a router with
 
 * uvrrpd support IPv6 (RFC5798) :
 
-```bash
+```
 #  ./uvrrpd -v 42 -i eth0 -p 90 -6 fe80::fada/64
 ```
 
 * Multiple VIPs could be specified for a single VRRP instance (up to 255 VIPs) :
 
-```bash
+```
 # ./uvrrpd -v 42 -i eth0 10.0.0.69 10.0.0.80
 ```
 
